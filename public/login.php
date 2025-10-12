@@ -1,3 +1,49 @@
+<?php
+@include '../config/config.php';
+
+if (isset($_POST['btn_login'])) {
+    $email = $_POST['email'] ?? "";
+    $password = $_POST['password'] ?? "";
+
+    if ($email == "" || $password == "") {
+        if (empty($_POST['email'])) {
+            $errorEmail = "Vui lòng nhập địa chỉ email!";
+        } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+            $errorEmail = "*Vui lòng nhập đúng định dạng email!";
+        }
+
+        if (empty($_POST['password'])) {
+            $errorPassword = "*Vui lòng nhập mật khẩu!";
+        } 
+    } else {
+        $select = "SELECT * FROM users WHERE email = '$email'";
+        $result = mysqli_query($conn, $select);
+
+        if (mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+
+            if (password_verify($password, $row['password'])) {
+                // Lưu thông tin người dùng vào session
+                session_start();
+                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['username'] = $row['username'];
+                $_SESSION['email'] = $row['email'];
+                $_SESSION['phone_number'] = $row['phone_number'];
+
+                // echo "<script>alert('Đăng nhập thành công!'); window.location.href='dashboard.php';</script>";
+                header('Location: index.php');
+                exit();
+            } else {
+                echo "<script>alert('Mật khẩu không đúng!');</script>";
+            }
+        } else {
+            echo "<script>alert('Email không tồn tại!');</script>";
+        }
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +55,18 @@
   </head>
     <link rel="icon" href="../imgs/logo.png">
     <title>Đăng nhập</title>
+    <style>
+        .error{
+            color: red;
+            font-size: 13px;
+            margin: 5px 0px;
+        }
+        .error_border{
+            border: none;
+            border-bottom: 2px solid red;
+        }
+
+    </style>
 </head>
 <body>
     <img src="../imgs/AoH.png" alt="" class="aoh-img">
@@ -20,20 +78,27 @@
 
 
         <div class="infor-box">
-            <form onsubmit="login()">
+            <form method="post")">
                 <h2>ĐĂNG NHẬP</h2>
 
-                <div class="input-box">
+                <!-- Email -->
+                <div class="input-box <?php echo (isset($errorEmail)) ? 'error_border' : ''; ?>">
                     <span class="icon"><i class="fa-solid fa-envelope"></i></span>
-                    <input type="email" id="email" required>
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                     <label for="">Email</label>
                 </div>
-                <div class="input-box">
+                <div class="error"><?php echo (isset($errorEmail)) ? $errorEmail : "" ?></div>
+
+                <!-- Pass -->
+                <div class="input-box <?php echo (isset($errorEmail)) ? 'error_border' : ''; ?>">
                     <span class="icon"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" id="password" required>
+                    <input type="password" id="password" name="password" value="<?= htmlspecialchars($_POST['password'] ?? '') ?>">
                     <label for="">Mật khẩu </label>
                 </div>
-                <button type="submit"><a href="">Đăng nhập</a></button>
+                <div class="error"><?php echo (isset($errorPassword)) ? $errorPassword : "" ?></div>
+
+                <!-- Btn -->
+                <button type="submit" name="btn_login">Đăng nhập</button>
                 
                 <hr>
                 <p>Chưa có tài khoản? <a href="./register.php">Đăng ký</a></p>
