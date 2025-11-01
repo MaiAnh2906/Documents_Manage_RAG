@@ -1,15 +1,21 @@
+<?php
+session_start();
+// print_r($_SESSION['login']) ;
+if(!isset($_SESSION['login'])){
+    header("Location: login.php");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Trang chủ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Trang chủ</title>
     <style>
         .search {
             border: none;
@@ -29,12 +35,12 @@
         }
 
         .sidebar {
-            width: 250px;
+            width: 230px;
             height: 100vh;
             background-color: #387af5;
             color: #fff;
             border-radius: 0 60px 40px 0;
-            padding: 30px 20px;
+            padding: 30px 10px;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -65,7 +71,7 @@
         }
 
         .dropdown-menu {
-            min-width: 180px;
+            min-width: 150px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
@@ -96,17 +102,30 @@
 
             <a class="navbar-brand" href="#">
                 <img src="" alt="" width="30" height="24">
-            </a> <span>Doogle Drive</span>
+            </a> <span>Google Drive</span>
 
             <form class="search-bar d-flex align-items-center search_form mx-auto">
                 <i class="bi bi-search"></i>
                 <input class="search-input search" type="search" placeholder="Search Drive..." aria-label="Search">
             </form>
 
-            <div class="d-flex align-items-center">
-                <span class="me-2">Xin chào, Admin</span>
-                <img src="https://via.placeholder.com/40" alt="Avatar" class="rounded-circle border" width="40" height="40">
-            </div>
+            <div class="dropdown">
+                <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="userDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fw-semibold text-dark">
+                    <?php echo $_SESSION['login']['username']; ?>
+                    </span>
+                    <img src="https://via.placeholder.com/40" alt="Avatar"
+                        class="rounded-circle border me-2" width="40" height="40" style="margin-left: 10px">
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="profile.php">Trang cá nhân</a></li>
+                    <li><a class="dropdown-item" href="settings.php">Cài đặt</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
+                </ul>
+                </div>
         </div>
     </nav>
 
@@ -118,7 +137,13 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <li><a class="dropdown-item" href="#">📁 Thư mục mới</a></li>
-                <li><a class="dropdown-item" href="#">⬆️ Tải tệp lên</a></li>
+                <li>
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <input type="file" name="" id="file_upload" style="display:none;">
+                        <button class="dropdown-item" id="btn_upload_file" >⬆️ Tải tệp lên</button>
+                    </form>
+                    <script src="../public/assets/js/idx.js"></script>
+                </li>
                 <li><a class="dropdown-item" href="#">📂 Tải thư mục lên</a></li>
             </ul>
         </div>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 @include '../config/config.php';
 
 if (isset($_POST['btn_login'])) {
@@ -21,6 +22,7 @@ if (isset($_POST['btn_login'])) {
 
         if (mysqli_num_rows($result) > 0) {
             $row = mysqli_fetch_assoc($result);
+            $_SESSION['login'] = [];
 
             if (password_verify($password, $row['password'])) {
                 // Lưu thông tin người dùng vào session
@@ -31,6 +33,7 @@ if (isset($_POST['btn_login'])) {
                 $_SESSION['phone_number'] = $row['phone_number'];
 
                 // echo "<script>alert('Đăng nhập thành công!'); window.location.href='dashboard.php';</script>";
+                $_SESSION['login'] = $row;
                 header('Location: index.php');
                 exit();
             } else {
@@ -78,7 +81,7 @@ if (isset($_POST['btn_login'])) {
 
 
         <div class="infor-box">
-            <form method="post")">
+            <form method="post">
                 <h2>ĐĂNG NHẬP</h2>
 
                 <!-- Email -->
