@@ -10,6 +10,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>Trang chủ</title>
     <style>
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+            /*background: white; /* hoặc màu navbar bạn muốn 
+            border-bottom: 1px solid #ddd; optional */
+        }
+
+        body {
+            padding-top: 70px;
+        }
         .search {
             border: none;
             margin-left: 10px;
@@ -212,6 +225,20 @@
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
                         <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Recents</a>
+                    </button>
+                </li>
+
+                <li
+                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
+                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
+                        <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
+                    </button>
+                </li>
+
+                <li
+                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
+                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
+                        <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
                     </button>
                 </li>
 
