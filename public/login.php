@@ -5,7 +5,7 @@ session_start();
 if (isset($_POST['btn_login'])) {
     $email = $_POST['email'] ?? "";
     $password = $_POST['password'] ?? "";
-    $pwd = md5($password);
+    $passmd5 = md5($password);
 
     if ($email == "" || $password == "") {
         if (empty($_POST['email'])) {
@@ -25,20 +25,15 @@ if (isset($_POST['btn_login'])) {
             $row = mysqli_fetch_assoc($result);
             $_SESSION['login'] = [];
 
-            if ($pwd ==  $row['password']) {
-                // Lưu thông tin người dùng vào session
-                // session_start();
-                // $_SESSION['user_id'] = $row['id'];
-                // $_SESSION['username'] = $row['username'];
-                // $_SESSION['email'] = $row['email'];
-                // $_SESSION['phone_number'] = $row['phone_number'];
-
-                // echo "<script>alert('Đăng nhập thành công!'); window.location.href='dashboard.php';</script>";
+            if ($passmd5 ==  $row['password']) {
+            
                 $_SESSION['login'] = $row;
-                if($row['role'] == 1){
+                $role = $_SESSION['login']['role'];
+                if($role == 1){
                     header('Location: admin_index.php');
                 }else{
                     header('Location: index.php');
+                    exit();
                 }
             } else {
                 echo "<script>alert('Mật khẩu không đúng!');</script>";
