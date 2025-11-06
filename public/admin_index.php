@@ -1,3 +1,9 @@
+<?php
+session_start();
+if(!isset($_SESSION['login'])){
+    header("Location: login.php");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -160,10 +166,25 @@
                     name="search" required>
             </form>
 
-            <div class="d-flex align-items-center">
-                <span class="me-2">Xin chào, Admin</span>
-                <img src="https://via.placeholder.com/40" alt="Avatar" class="rounded-circle border" width="40" height="40">
+
+            <div class="dropdown">
+                <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="userDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fw-semibold text-dark">
+                    <?php echo $_SESSION['login']['username']; ?>
+                    </span>
+                    <img src="https://via.placeholder.com/40" alt="Avatar"
+                        class="rounded-circle border me-2" width="40" height="40" style="margin-left: 10px">
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="profile.php">Trang cá nhân</a></li>
+                    <li><a class="dropdown-item" href="settings.php">Cài đặt</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
+                </ul>
             </div>
+
         </div>
     </nav>
 
@@ -205,13 +226,6 @@
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
                         <a href="#" class="nav-link"><i class="bi bi-people"></i> Được chia sẻ với tôi</a>
-                    </button>
-                </li>
-
-                <li
-                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
-                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Recents</a>
                     </button>
                 </li>
 

@@ -6,7 +6,7 @@ if(isset($_POST['sbt_register'])){
     $password = $_POST['password'] ?? "";
     $email = $_POST['email'] ?? "";
     $phone_number = $_POST['phone_number'] ?? "";
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    $passwordHash = md5($password, PASSWORD_DEFAULT);
 
 
     if($name == "" || $password == "" || $email == "" || $phone_number == ""){

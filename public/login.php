@@ -5,6 +5,7 @@ session_start();
 if (isset($_POST['btn_login'])) {
     $email = $_POST['email'] ?? "";
     $password = $_POST['password'] ?? "";
+    $passmd5 = md5($password);
 
     if ($email == "" || $password == "") {
         if (empty($_POST['email'])) {
@@ -15,7 +16,7 @@ if (isset($_POST['btn_login'])) {
 
         if (empty($_POST['password'])) {
             $errorPassword = "*Vui lòng nhập mật khẩu!";
-        } 
+        }
     } else {
         $select = "SELECT * FROM users WHERE email = '$email'";
         $result = mysqli_query($conn, $select);
@@ -24,18 +25,17 @@ if (isset($_POST['btn_login'])) {
             $row = mysqli_fetch_assoc($result);
             $_SESSION['login'] = [];
 
-            if (password_verify($password, $row['password'])) {
-                // Lưu thông tin người dùng vào session
-                session_start();
-                $_SESSION['user_id'] = $row['id'];
-                $_SESSION['username'] = $row['username'];
-                $_SESSION['email'] = $row['email'];
-                $_SESSION['phone_number'] = $row['phone_number'];
+            if ($passmd5 == $row['password']) {
 
-                // echo "<script>alert('Đăng nhập thành công!'); window.location.href='dashboard.php';</script>";
                 $_SESSION['login'] = $row;
-                header('Location: index.php');
-                exit();
+                $role = $_SESSION['login']['role'];
+                if ($role == '1') {
+                    header("Location: admin_index.php");
+                } else {
+                    header('Location: index.php');
+                    exit();
+                }
+                
             } else {
                 echo "<script>alert('Mật khẩu không đúng!');</script>";
             }
@@ -49,28 +49,30 @@ if (isset($_POST['btn_login'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/css/gd.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  </head>
-    <link rel="icon" href="../imgs/logo.png">
-    <title>Đăng nhập</title>
-    <style>
-        .error{
-            color: red;
-            font-size: 13px;
-            margin: 5px 0px;
-        }
-        .error_border{
-            border: none;
-            border-bottom: 2px solid red;
-        }
-
-    </style>
 </head>
+<link rel="icon" href="../imgs/logo.png">
+<title>Đăng nhập</title>
+<style>
+    .error {
+        color: red;
+        font-size: 13px;
+        margin: 5px 0px;
+    }
+
+    .error_border {
+        border: none;
+        border-bottom: 2px solid red;
+    }
+</style>
+</head>
+
 <body>
     <img src="../imgs/AoH.png" alt="" class="aoh-img">
 
@@ -102,7 +104,7 @@ if (isset($_POST['btn_login'])) {
 
                 <!-- Btn -->
                 <button type="submit" name="btn_login">Đăng nhập</button>
-                
+
                 <hr>
                 <p>Chưa có tài khoản? <a href="./register.php">Đăng ký</a></p>
             </form>
@@ -112,4 +114,5 @@ if (isset($_POST['btn_login'])) {
 
     <script src="loglog.js"></script>
 </body>
+
 </html>
