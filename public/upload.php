@@ -4,6 +4,34 @@ session_start();
 if(!isset($_SESSION['login'])){
     header("Location: login.php");
 }
+
+if(isset($_POST['btn_upload'])){
+    if(isset($_FILES['fileInput']) && $_FILES['fileInput']['error'] == 0){
+        $target = "uploads/";
+        $filename = $_FILES['fileInput']['name'];
+        
+        if(!file_exists($target)){
+            mkdir($target, 0777, true);
+        }
+        $path = $target . $filename;
+        $type = pathinfo($filename, PATHINFO_EXTENSION) ;
+        $size = $_FILES['fileInput']['size'];
+        $user_id = $_SESSION['login']['user_id'];
+
+        move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
+        $sql =  "INSERT INTO files (`user_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, '$filename', '$path', '$type', $size)";
+        if(mysqli_query($conn, $sql)){
+            $role = $_SESSION['login']['role'];
+            if($role == 1){
+                header('Location: admin_index.php');
+            }else{
+                header('Location: index.php');
+                exit();
+            }
+        }
+        
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +43,7 @@ if(!isset($_SESSION['login'])){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Trang chủ</title>
+    <title>Upload file</title>
     <style>
         .navbar {
             position: fixed;
@@ -207,7 +235,7 @@ if(!isset($_SESSION['login'])){
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item flex items-center" href="upload.php"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
+                <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
                 <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-folder-fill me-2 text-gray-500"></i> Tải thư mục lên</a></li>
             </ul>
         </div>
@@ -275,79 +303,15 @@ if(!isset($_SESSION['login'])){
 
         </nav>
     </div>
-
-
-    <!-- MAIN CONTENT -->
     <div class="main-container">
-        
-        <!-- ALL FILES SECTION -->
-        <section class="mt-8 bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">ALL FILES</h2>
+        <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">UPLOAD FILES</h2>
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="fileInput" id="fileInput">
             
-            <div class="overflow-x-auto">
-                <div class="min-w-full">
-                    <!-- Table Header -->
-                    <div class="grid grid-cols-12 text-xs font-bold text-gray-500 border-b border-gray-200 py-3 uppercase">
-                        <div class="col-span-4 lg:col-span-5 px-3">NAME</div>
-                        <div class="col-span-3 lg:col-span-2 px-3">OWNERS</div>
-                        <div class="col-span-2 px-3">LAST MODIFIED</div>
-                        <div class="col-span-2 px-3">FILE SIZE</div>
-                        <div class="col-span-1 px-3 text-right"></div> <!-- Links/Options -->
-                    </div>
-
-                    <!-- Thêm file bằng php -->
-                    
-                    <?php 
-                        $sql = "SELECT * FROM files
-                        JOIN users ON files.user_id = users.user_id";
-                        $kq = mysqli_query($conn, $sql);
-
-                        if(mysqli_num_rows($kq) > 0){
-                            while($row = mysqli_fetch_assoc($kq)){
-                        
-                        $icons = [
-                            'pdf' => 'bi-file-earmark-pdf-fill',
-                            'doc' => 'bi-file-earmark-word-fill',
-                            'docx' => 'bi-file-earmark-word-fill',
-                            'xls' => 'bi-file-earmark-excel-fill',
-                            'xlsx' => 'bi-file-earmark-excel-fill',
-                            'ppt' => 'bi-file-earmark-ppt-fill',
-                            'pptx' => 'bi-file-earmark-ppt-fill',
-                            'jpg' => 'bi-file-earmark-image-fill',
-                            'png' => 'bi-file-earmark-image-fill',
-                            'zip' => 'bi-file-earmark-zip-fill'
-                        ];
-                        $ext = strtolower(pathinfo($row['name'], PATHINFO_EXTENSION));
-                        $icon = $icons[$ext] ?? 'bi-file-earmark-fill';
-
-                        $firstLetter = mb_substr($row['username'], 0, 1, "UTF-8");
-
-                    ?>
-                    <div class="file-row grid grid-cols-12 items-center text-sm border-b border-gray-100 py-3 transition duration-150">
-                        <div class="col-span-4 lg:col-span-5 flex items-center space-x-3 px-3">
-                            <i class="bi <?php echo $icon; ?> text-xl"></i>
-                            <span class="font-medium text-gray-800"><?php echo $row['name']; ?></span>
-                        </div>
-                        <div class="col-span-3 lg:col-span-2 avatar-group">
-                            <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://placehold.co/24x24/dc2626/ffffff?text=<?php echo $firstLetter; ?>" alt="<?php echo "Owner " . $row['name']; ?>">
-                        </div>
-                        <div class="col-span-2 text-gray-600 px-3"><?php echo $row['upload_date']; ?></div>
-                        <div class="col-span-2 text-gray-600 px-3"><?php echo round($row['size'] / (1024*1024), 2). " MB"; ?></div>
-                        <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
-                            <i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
-                            <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"></i>
-                        </div>
-                    </div>
-                    <?php
-                            }
-                        }
-                    ?>
-                </div>
-            </div>
-        </section>
+            <br><br>
+            <input class="btn btn-primary" type="submit" name="btn_upload" value="Upload">
+        </form>
     </div>
 
-
 </body>
-
 </html>

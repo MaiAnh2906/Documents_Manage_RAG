@@ -15,7 +15,7 @@ if(!isset($_SESSION['login'])){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Trang chủ</title>
+    <title>Quản lý tài khoản</title>
     <style>
         .navbar {
             position: fixed;
@@ -275,79 +275,47 @@ if(!isset($_SESSION['login'])){
 
         </nav>
     </div>
-
-
-    <!-- MAIN CONTENT -->
     <div class="main-container">
-        
-        <!-- ALL FILES SECTION -->
-        <section class="mt-8 bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">ALL FILES</h2>
-            
-            <div class="overflow-x-auto">
-                <div class="min-w-full">
-                    <!-- Table Header -->
-                    <div class="grid grid-cols-12 text-xs font-bold text-gray-500 border-b border-gray-200 py-3 uppercase">
-                        <div class="col-span-4 lg:col-span-5 px-3">NAME</div>
-                        <div class="col-span-3 lg:col-span-2 px-3">OWNERS</div>
-                        <div class="col-span-2 px-3">LAST MODIFIED</div>
-                        <div class="col-span-2 px-3">FILE SIZE</div>
-                        <div class="col-span-1 px-3 text-right"></div> <!-- Links/Options -->
-                    </div>
+        <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">QUẢN LÝ NGƯỜI DÙNG</h2>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <?php
+                $stt = 1;
+                $sql = "SELECT * FROM users WHERE `role` != 1";
+                $kq = mysqli_query($conn, $sql);
+                while($row = mysqli_fetch_assoc($kq)){
+            ?>
+            <tr>
+                <td><?php echo $stt++; ?></td>
+                <td><?php echo $row['username']; ?></td>
+                <td><?php echo $row['email']; ?></td>
+                <td><?php echo "user"; ?></td>
+                <td>
+                    <a href="?edit=<?php echo $row['user_id']; ?>" class="btn btn-warning btn-sm">Sửa</a>
+                    <a href="?delete=<?php echo $row['user_id']; ?>" class="btn btn-danger btn-sm"
+                    onclick="return confirm('Xóa người dùng này?')">Xóa</a>
+                </td>
+                <?php
+                    }
+                ?>
+            </tr>    
+        </table>
 
-                    <!-- Thêm file bằng php -->
-                    
-                    <?php 
-                        $sql = "SELECT * FROM files
-                        JOIN users ON files.user_id = users.user_id";
-                        $kq = mysqli_query($conn, $sql);
-
-                        if(mysqli_num_rows($kq) > 0){
-                            while($row = mysqli_fetch_assoc($kq)){
-                        
-                        $icons = [
-                            'pdf' => 'bi-file-earmark-pdf-fill',
-                            'doc' => 'bi-file-earmark-word-fill',
-                            'docx' => 'bi-file-earmark-word-fill',
-                            'xls' => 'bi-file-earmark-excel-fill',
-                            'xlsx' => 'bi-file-earmark-excel-fill',
-                            'ppt' => 'bi-file-earmark-ppt-fill',
-                            'pptx' => 'bi-file-earmark-ppt-fill',
-                            'jpg' => 'bi-file-earmark-image-fill',
-                            'png' => 'bi-file-earmark-image-fill',
-                            'zip' => 'bi-file-earmark-zip-fill'
-                        ];
-                        $ext = strtolower(pathinfo($row['name'], PATHINFO_EXTENSION));
-                        $icon = $icons[$ext] ?? 'bi-file-earmark-fill';
-
-                        $firstLetter = mb_substr($row['username'], 0, 1, "UTF-8");
-
-                    ?>
-                    <div class="file-row grid grid-cols-12 items-center text-sm border-b border-gray-100 py-3 transition duration-150">
-                        <div class="col-span-4 lg:col-span-5 flex items-center space-x-3 px-3">
-                            <i class="bi <?php echo $icon; ?> text-xl"></i>
-                            <span class="font-medium text-gray-800"><?php echo $row['name']; ?></span>
-                        </div>
-                        <div class="col-span-3 lg:col-span-2 avatar-group">
-                            <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://placehold.co/24x24/dc2626/ffffff?text=<?php echo $firstLetter; ?>" alt="<?php echo "Owner " . $row['name']; ?>">
-                        </div>
-                        <div class="col-span-2 text-gray-600 px-3"><?php echo $row['upload_date']; ?></div>
-                        <div class="col-span-2 text-gray-600 px-3"><?php echo round($row['size'] / (1024*1024), 2). " MB"; ?></div>
-                        <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
-                            <i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
-                            <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"></i>
-                        </div>
-                    </div>
-                    <?php
-                            }
-                        }
-                    ?>
-                </div>
-            </div>
-        </section>
+        <?php
+            if(isset($_GET['delete'])){
+                $id = $_GET['delete'];
+                $sql = "DELETE FROM users WHERE user_id = $id";
+                mysqli_query($conn, $sql);
+            } 
+        ?>
     </div>
-
-
 </body>
-
 </html>
