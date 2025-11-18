@@ -23,7 +23,7 @@ if (isset($_POST['btn_login'])) {
 
         if (mysqli_num_rows($result) > 0) {
             $row = mysqli_fetch_assoc($result);
-            $_SESSION['login'] = [];
+            // $_SESSION['login'] = [];
 
             if ($passmd5 ==  $row['password']) {
             
