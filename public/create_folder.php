@@ -28,7 +28,7 @@ if (isset($_POST['create'])) {
         $error = "Vui lòng nhập tên thư mục!";
     } else {
         // tao fd vat ly tren ser
-        $path = "../uploads/$user_id/";
+        $path = "uploads/$user_id/";
 
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
