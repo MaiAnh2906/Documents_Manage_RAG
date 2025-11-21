@@ -7,13 +7,20 @@ if (!isset($_SESSION['login'])) {
     exit();
 }
 
-$user_id = $_SESSION['login']['user_id']; 
+$user_id = $_SESSION['login']['user_id'];
+$role = $_SESSION['login']['role'];
+
 $folder_name = "";
 
 if (isset($_POST['cancel'])) {
-    header("Location: admin_index.php");
+    if ($role == 1) {
+        header('Location: admin_index.php');
+    } else {
+        header('Location: index.php');
+    }
     exit();
 }
+
 if (isset($_POST['create'])) {
     $folder_name = trim($_POST['folder_name'] ?? "");
 
@@ -39,10 +46,15 @@ if (isset($_POST['create'])) {
 
         mkdir($folder_path, 0777, true);
 
-        $sql = "INSERT INTO folders (user_id, name, created_at) VALUES ('$user_id', '$folder_name', NOW())";
+        $final_folder_name = basename($folder_path);
+        $sql = "INSERT INTO folders (user_id, name, created_at) VALUES ('$user_id', '$final_folder_name', NOW())";
         mysqli_query($conn, $sql);
 
-        header("Location: admin_index.php?success=1");
+        if ($role == 1) {
+            header('Location: admin_index.php?success=1');
+        } else {
+            header('Location: index.php?success=1');
+        }
         exit();
     }
 }
@@ -326,17 +338,17 @@ if (isset($_POST['create'])) {
 
     <!-- MAIN CONTENT -->
     <div class="main-container">
-    <h3>Tạo thư mục mới</h3>
-    <?php if (!empty($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
+        <h3>Tạo thư mục mới</h3>
+        <?php if (!empty($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
 
-    <form action="" method="POST" class="mt-3" style="max-width: 400px;">
-        <div class="mb-3">
-            <input type="text" name="folder_name" class="form-control" placeholder="Tên thư mục" >
-        </div>
-        <button type="submit" name="create" class="btn btn-primary">Tạo</button>
-        <button type="submit" name="cancel" class="btn btn-secondary">Hủy</button>
-    </form>
-</div>
+        <form action="" method="POST" class="mt-3" style="max-width: 400px;">
+            <div class="mb-3">
+                <input type="text" name="folder_name" class="form-control" placeholder="Tên thư mục">
+            </div>
+            <button type="submit" name="create" class="btn btn-primary">Tạo</button>
+            <button type="submit" name="cancel" class="btn btn-secondary">Hủy</button>
+        </form>
+    </div>
 
 
 </body>
