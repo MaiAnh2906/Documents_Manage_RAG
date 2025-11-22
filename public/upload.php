@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 include("../config/config.php");
 session_start();
 if(!isset($_SESSION['login'])){
@@ -13,21 +16,17 @@ if(isset($_POST['btn_upload'])){
         if(!file_exists($target)){
             mkdir($target, 0777, true);
         }
-        $path = $target . $filename;
+        
         $type = pathinfo($filename, PATHINFO_EXTENSION) ;
+        $newname = uniqid("file_", true) . "." . $type;
+        $path = $target . $newname;
         $size = $_FILES['fileInput']['size'];
         $user_id = $_SESSION['login']['user_id'];
 
         move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
         $sql =  "INSERT INTO files (`user_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, '$filename', '$path', '$type', $size)";
         if(mysqli_query($conn, $sql)){
-            $role = $_SESSION['login']['role'];
-            if($role == 1){
-                header('Location: admin_index.php');
-            }else{
-                header('Location: index.php');
-                exit();
-            }
+            header('Location: index.php');
         }
         
     }
@@ -208,7 +207,7 @@ if(isset($_POST['btn_upload'])){
             <div class="dropdown">
                 <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="userDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2">Xin chào, Admin</span>
+                    <span class="me-2">Xin chào, <?php echo $_SESSION['login']['username']; ?></span>
                     <img src="https://via.placeholder.com/40" alt="Avatar"
                         class="rounded-circle border me-2" width="40" height="40" style="margin-left: 10px">
                 </a>
@@ -246,7 +245,7 @@ if(isset($_POST['btn_upload'])){
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="admin_index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
+                        <a href="index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
                     </button>
                 </li>
 

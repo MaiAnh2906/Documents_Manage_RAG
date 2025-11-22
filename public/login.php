@@ -29,12 +29,9 @@ if (isset($_POST['btn_login'])) {
             
                 $_SESSION['login'] = $row;
                 $role = $_SESSION['login']['role'];
-                if($role == 1){
-                    header('Location: admin_index.php');
-                }else{
-                    header('Location: index.php');
-                    exit();
-                }
+                header('Location: index.php');
+                exit();
+                
             } else {
                 echo "<script>alert('Mật khẩu không đúng!');</script>";
             }

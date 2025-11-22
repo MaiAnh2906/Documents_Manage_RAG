@@ -12,14 +12,14 @@ $role = $_SESSION['login']['role'];
 
 $folder_name = "";
 
-if (isset($_POST['cancel'])) {
-    if ($role == 1) {
-        header('Location: admin_index.php');
-    } else {
-        header('Location: index.php');
-    }
-    exit();
-}
+// if (isset($_POST['cancel'])) {
+//     if ($role == 1) {
+//         header('Location: admin_index.php');
+//     } else {
+//         header('Location: index.php');
+//     }
+//     exit();
+// }
 
 if (isset($_POST['create'])) {
     $folder_name = trim($_POST['folder_name'] ?? "");
@@ -49,12 +49,7 @@ if (isset($_POST['create'])) {
         $final_folder_name = basename($folder_path);
         $sql = "INSERT INTO folders (user_id, name, created_at) VALUES ('$user_id', '$final_folder_name', NOW())";
         mysqli_query($conn, $sql);
-
-        if ($role == 1) {
-            header('Location: admin_index.php?success=1');
-        } else {
-            header('Location: index.php?success=1');
-        }
+        header('Location: index.php?success=1');
         exit();
     }
 }
@@ -237,7 +232,7 @@ if (isset($_POST['create'])) {
             <div class="dropdown">
                 <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="userDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2">Xin chào, Admin</span>
+                    <span class="me-2">Xin chào, <?php echo $_SESSION['login']['username'];  ?></span>
                     <img src="https://via.placeholder.com/40" alt="Avatar"
                         class="rounded-circle border me-2" width="40" height="40" style="margin-left: 10px">
                 </a>
@@ -277,7 +272,7 @@ if (isset($_POST['create'])) {
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="admin_index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
+                        <a href="index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
                     </button>
                 </li>
 

@@ -7,6 +7,10 @@ if (!isset($_SESSION['login'])) {
 
 $user_id = $_SESSION['login']['user_id'];
 $username = $_SESSION['login']['username'];
+$role = $_SESSION['login']['role'];
+// if ($role != 1) {
+//     header('Location: error.php');
+// }
 
 $sql = "SELECT * FROM folders WHERE user_id = $user_id ORDER BY created_at DESC"; // lay ds fd co san
 $result = mysqli_query($conn, $sql);
@@ -183,13 +187,12 @@ $result = mysqli_query($conn, $sql);
                     placeholder="Search Drive..."
                     aria-label="Search"
                     name="search" required>
-                <i class="bi bi-x text-gray-500 text-lg cursor-pointer ml-2" onclick="window.location.href='index.php'"></i>
             </form>
 
             <div class="dropdown">
                 <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="userDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2">Xin chào, <?php echo $username; ?></span>
+                    <span class="me-2">Xin chào, <?php echo $_SESSION['login']['username']; ?></span>
                     <img src="https://via.placeholder.com/40" alt="Avatar"
                         class="rounded-circle border me-2" width="40" height="40" style="margin-left: 10px">
                 </a>
@@ -254,12 +257,23 @@ $result = mysqli_query($conn, $sql);
                     </button>
                 </li>
 
+                <?php if($_SESSION['login']['role'] == 1){ ?>
+                <li
+                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
+                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
+                        <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
+                    </button>
+                </li>
+                <?php } ?>
+
+                <?php if($_SESSION['login']['role'] == 1){ ?>
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
                         <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
                     </button>
                 </li>
+                <?php } ?>
 
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
@@ -290,7 +304,7 @@ $result = mysqli_query($conn, $sql);
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 <?php
                 if (mysqli_num_rows($result) > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) {
+                    while ($row = mysqli_fetch_assoc($result)) { 
                         $folder_name = htmlspecialchars($row['name']);?>
                         <div class="folder-card bg-gray-50 p-4 rounded-xl shadow-sm hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200 flex flex-col items-center text-left hover:bg-yellow-50" title="<?php echo $folder_name; ?>">
                             <div class="flex items-center w-full">
@@ -303,7 +317,7 @@ $result = mysqli_query($conn, $sql);
                 <?php   }
                 }
                 ?>
-
+    
 
             </div>
 
@@ -328,7 +342,16 @@ $result = mysqli_query($conn, $sql);
                     <!-- Thêm file bằng php -->
 
                     <?php
-                    $sql = "SELECT * FROM files WHERE user_id = $user_id";
+                    if ($role == 1) {
+                        $sql = "SELECT * FROM files
+                                JOIN users ON files.user_id = users.user_id
+                                ORDER BY upload_date DESC";
+                    } else {
+                        $sql = "SELECT * FROM files
+                                JOIN users ON files.user_id = users.user_id
+                                WHERE files.user_id = $user_id
+                                ORDER BY upload_date DESC";
+                    }
                     $kq = mysqli_query($conn, $sql);
 
                     if (mysqli_num_rows($kq) > 0) {
@@ -349,7 +372,7 @@ $result = mysqli_query($conn, $sql);
                             $ext = strtolower(pathinfo($row['name'], PATHINFO_EXTENSION));
                             $icon = $icons[$ext] ?? 'bi-file-earmark-fill';
 
-                            $firstLetter = mb_substr($username, 0, 1, "UTF-8");
+                            $firstLetter = mb_substr($row['username'], 0, 1, "UTF-8");
 
                     ?>
                             <div class="file-row grid grid-cols-12 items-center text-sm border-b border-gray-100 py-3 transition duration-150">
@@ -364,7 +387,33 @@ $result = mysqli_query($conn, $sql);
                                 <div class="col-span-2 text-gray-600 px-3"><?php echo round($row['size'] / (1024 * 1024), 2) . " MB"; ?></div>
                                 <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
                                     <i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
-                                    <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"></i>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"
+                                        data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                        <ul class="dropdown-menu shadow-lg rounded-xl">
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2" href="#">
+                                                    <i class="bi bi-eye"></i> Xem
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2" href="#">
+                                                    <i class="bi bi-pencil-square"></i> Đổi tên
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2" href="#">
+                                                    <i class="bi bi-download"></i> Tải xuống
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2 text-danger" href="#">
+                                                    <i class="bi bi-trash"></i> Xóa
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
                                 </div>
                             </div>
                     <?php

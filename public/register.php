@@ -6,7 +6,7 @@ if(isset($_POST['sbt_register'])){
     $password = $_POST['password'] ?? "";
     $email = $_POST['email'] ?? "";
     $phone_number = $_POST['phone_number'] ?? "";
-    $passwordHash = md5($password, PASSWORD_DEFAULT);
+    $passwordMd5 = md5($password);
 
 
     if($name == "" || $password == "" || $email == "" || $phone_number == ""){
@@ -40,7 +40,7 @@ if(isset($_POST['sbt_register'])){
         if(mysqli_num_rows($result) > 0){
             echo "<script>alert('Email đã tồn tại!');</script>";
         }else{
-            $insert = "INSERT INTO users (username, password, email, phone_number) VALUES('$name', '$passwordHash', '$email', '$phone_number')";
+            $insert = "INSERT INTO users (username, password, email, phone_number) VALUES('$name', '$passwordMd5', '$email', '$phone_number')";
             mysqli_query($conn, $insert);
             echo "<script>alert('Đăng kí thành công!');</script>";
         }

@@ -218,7 +218,7 @@ if(!isset($_SESSION['login'])){
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="admin_index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
+                        <a href="index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
                     </button>
                 </li>
 
