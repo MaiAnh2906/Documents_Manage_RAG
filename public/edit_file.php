@@ -1,19 +1,58 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 include("../config/config.php");
 session_start();
-if (!isset($_SESSION['login'])) {
+if(!isset($_SESSION['login'])){
     header("Location: login.php");
 }
 
-$user_id = $_SESSION['login']['user_id'];
-$username = $_SESSION['login']['username'];
-$role = $_SESSION['login']['role'];
-// if ($role != 1) {
-//     header('Location: error.php');
-// }
+$id = $_GET['id'];
+if(isset($_POST['btn_cancel'])){
+    header("Location: index.php");
+    exit();
+}
 
-$sql = "SELECT * FROM folders WHERE user_id = $user_id ORDER BY created_at DESC"; // lay ds fd co san
-$result = mysqli_query($conn, $sql);
+if(isset($_POST['btn_update'])){
+    $user_id = $_SESSION['login']['user_id'];
+    $name = $_POST['filename'];
+    
+    if($_FILES['fileInput']['error'] == 4){
+        if($name == ""){
+            $error = "Vui lòng nhập tên bạn muốn đổi";
+        }else{
+            $sql = "SELECT * FROM files WHERE file_id = $id";
+            $kq = mysqli_query($conn, $sql);
+            $row = mysqli_fetch_assoc($kq);
+            $type = $row['type'];
+            $filename = $name . ".". $type;
+            $sql = "UPDATE `files` SET `name`='$filename', `user_id`=$user_id, `upload_date`=NOW() WHERE file_id = $id";
+            $kq = mysqli_query($conn, $sql);
+            header("Location: index.php");
+        }
+        
+    }
+    elseif(isset($_FILES['fileInput']) && $_FILES['fileInput']['error'] == 0){
+        $target = "uploads/";
+        $filename = $_FILES['fileInput']['name'];
+        $type = pathinfo($filename, PATHINFO_EXTENSION) ;
+        $newname = uniqid("file_", true) . "." . $type;
+        $path = $target . $newname;
+        $size = $_FILES['fileInput']['size'];
+        move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
+
+        $sql = "SELECT * FROM files WHERE file_id = $id";
+        $kq = mysqli_query($conn, $sql);
+        $row = mysqli_fetch_assoc($kq);
+        $old_path = $row['path'];
+        unlink($old_path);
+
+        $sql = "UPDATE files SET `user_id`=$user_id, `name`='$filename', `path`='$path', `type`='$type', `size`=$size, `upload_date`=NOW() WHERE file_id = $id";
+        $kq = mysqli_query($conn, $sql);
+
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -26,7 +65,7 @@ $result = mysqli_query($conn, $sql);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Trang chủ</title>
+    <title>Edit file</title>
     <style>
         .navbar {
             position: fixed;
@@ -38,7 +77,6 @@ $result = mysqli_query($conn, $sql);
         body {
             padding-top: 65px;
         }
-
         .search {
             border: none;
             margin-left: 10px;
@@ -120,7 +158,7 @@ $result = mysqli_query($conn, $sql);
             margin-left: 250px;
             padding: 20px;
             min-height: 100vh;
-            /* background-color: #f4f7f9; */
+            background-color: #f4f7f9;
         }
 
         .file-row:hover {
@@ -200,9 +238,7 @@ $result = mysqli_query($conn, $sql);
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                     <li><a class="dropdown-item" href="profile.php">Trang cá nhân</a></li>
                     <li><a class="dropdown-item" href="settings.php">Cài đặt</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
                 </ul>
             </div>
@@ -217,11 +253,11 @@ $result = mysqli_query($conn, $sql);
                 <i class="bi bi-plus-lg me-2"></i> New
             </button>
             <ul class="dropdown-menu shadow-xl" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item flex items-center" href="create_folder.php"><i class="bi bi-folder me-2 text-yellow-600"></i> Thư mục mới</a></li>
+                <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-folder me-2 text-yellow-600"></i> Thư mục mới</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item flex items-center" href="upload.php"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
+                <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
                 <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-folder-fill me-2 text-gray-500"></i> Tải thư mục lên</a></li>
             </ul>
         </div>
@@ -257,23 +293,19 @@ $result = mysqli_query($conn, $sql);
                     </button>
                 </li>
 
-                <?php if($_SESSION['login']['role'] == 1){ ?>
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
                         <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
                     </button>
                 </li>
-                <?php } ?>
 
-                <?php if($_SESSION['login']['role'] == 1){ ?>
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
                         <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
                     </button>
                 </li>
-                <?php } ?>
 
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
@@ -293,139 +325,20 @@ $result = mysqli_query($conn, $sql);
 
         </nav>
     </div>
-
-
-    <!-- MAIN CONTENT -->
     <div class="main-container">
+        <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">EDIT FILES</h2>
+        <?php if (!empty($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
+        <form method="post" enctype="multipart/form-data">
+            <label for="">Đổi tên file: </label><br>
+            <input type="text" name="filename" id="" placeholder="abc"><br><br>
 
-        <!-- FOLDERS SESION-->
-        <section class="mb-8 bg-white p-6 rounded-xl">
-            <h2 class="text-xl font-bold text-gray-700 uppercase mb-4 tracking-wider border-b pb-2">THƯ MỤC</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                <?php
-                if (mysqli_num_rows($result) > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) { 
-                        $folder_name = htmlspecialchars($row['name']);?>
-                        <div class="folder-card bg-gray-50 p-4 rounded-xl shadow-sm hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200 flex flex-col items-center text-left hover:bg-yellow-50" title="<?php echo $folder_name; ?>">
-                            <div class="flex items-center w-full">
-                                <i class="bi bi-folder-fill text-yellow-500 text-2xl mr-2"></i>
-                                <span class="text-sm font-medium text-gray-800 truncate w-full"><?php echo $folder_name; ?></span>
-                                <i class="bi bi-three-dots-vertical text-gray-400 hover:text-gray-700 ml-auto"></i>
-                            </div>
-                        </div>
-
-                <?php   }
-                }
-                ?>
-    
-
-            </div>
-
-
-        </section>
-
-        <!-- ALL FILES SECTION -->
-        <section class="mt-8 bg-white p-6 rounded-xl">
-            <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">TẤT CẢ TỆP</h2>
-
-            <div class="overflow-x-auto">
-                <div class="min-w-full">
-                    <!-- Table Header -->
-                    <div class="grid grid-cols-12 text-xs font-bold text-gray-500 border-b border-gray-200 py-3 uppercase">
-                        <div class="col-span-4 lg:col-span-5 px-3">NAME</div>
-                        <div class="col-span-3 lg:col-span-2 px-3">OWNERS</div>
-                        <div class="col-span-2 px-3">LAST MODIFIED</div>
-                        <div class="col-span-2 px-3">FILE SIZE</div>
-                        <div class="col-span-1 px-3 text-right"></div> <!-- Links/Options -->
-                    </div>
-
-                    <!-- Thêm file bằng php -->
-
-                    <?php
-                    if ($role == 1) {
-                        $sql = "SELECT * FROM files
-                                JOIN users ON files.user_id = users.user_id
-                                ORDER BY upload_date DESC";
-                    } else {
-                        $sql = "SELECT * FROM files
-                                JOIN users ON files.user_id = users.user_id
-                                WHERE files.user_id = $user_id
-                                ORDER BY upload_date DESC";
-                    }
-                    $kq = mysqli_query($conn, $sql);
-
-                    if (mysqli_num_rows($kq) > 0) {
-                        while ($row = mysqli_fetch_assoc($kq)) {
-
-                            $icons = [
-                                'pdf' => 'bi-file-earmark-pdf-fill',
-                                'doc' => 'bi-file-earmark-word-fill',
-                                'docx' => 'bi-file-earmark-word-fill',
-                                'xls' => 'bi-file-earmark-excel-fill',
-                                'xlsx' => 'bi-file-earmark-excel-fill',
-                                'ppt' => 'bi-file-earmark-ppt-fill',
-                                'pptx' => 'bi-file-earmark-ppt-fill',
-                                'jpg' => 'bi-file-earmark-image-fill',
-                                'png' => 'bi-file-earmark-image-fill',
-                                'zip' => 'bi-file-earmark-zip-fill'
-                            ];
-                            $ext = strtolower(pathinfo($row['name'], PATHINFO_EXTENSION));
-                            $icon = $icons[$ext] ?? 'bi-file-earmark-fill';
-
-                            $firstLetter = mb_substr($row['username'], 0, 1, "UTF-8");
-
-                    ?>
-                            <div class="file-row grid grid-cols-12 items-center text-sm border-b border-gray-100 py-3 transition duration-150">
-                                <div class="col-span-4 lg:col-span-5 flex items-center space-x-3 px-3">
-                                    <i class="bi <?php echo $icon; ?> text-xl"></i>
-                                    <span class="font-medium text-gray-800"><?php echo $row['name']; ?></span>
-                                </div>
-                                <div class="col-span-3 lg:col-span-2 avatar-group">
-                                    <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://placehold.co/24x24/dc2626/ffffff?text=<?php echo $firstLetter; ?>" alt="<?php echo "Owner " . $row['name']; ?>">
-                                </div>
-                                <div class="col-span-2 text-gray-600 px-3"><?php echo $row['upload_date']; ?></div>
-                                <div class="col-span-2 text-gray-600 px-3"><?php echo round($row['size'] / (1024 * 1024), 2) . " MB"; ?></div>
-                                <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
-                                    <i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
-                                    <div class="dropdown">
-                                        <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"
-                                        data-bs-toggle="dropdown" aria-expanded="false"></i>
-                                        <ul class="dropdown-menu shadow-lg rounded-xl">
-                                            <li>
-                                                <a class="dropdown-item flex items-center gap-2" href="detail_file.php?id=<?php echo $row['file_id']; ?>">
-                                                    <i class="bi bi-eye"></i> Chi tiết
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item flex items-center gap-2" href="edit_file.php?id=<?php echo $row['file_id']; ?>">
-                                                    <i class="bi bi-pencil-square"></i> Chỉnh sửa
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item flex items-center gap-2" href="download_file.php?id=<?php echo $row['file_id']; ?>">
-                                                    <i class="bi bi-download"></i> Tải xuống
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item flex items-center gap-2 text-danger" href="delete_file.php?id=<?php echo $row['file_id']; ?>" onclick="return confirm('Bạn có muốn xóa file này?')">
-                                                    <i class="bi bi-trash"></i> Xóa
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                </div>
-                            </div>
-                    <?php
-                        }
-                    }
-                    ?>
-                </div>
-            </div>
-        </section>
+            <input type="file" name="fileInput" id="fileInput">
+            
+            <br><br>
+            <input class="btn btn-secondary" type="submit" name="btn_cancel" value="Hủy">
+            <input class="btn btn-primary" type="submit" name="btn_update" value="OK">
+        </form>
     </div>
 
-
 </body>
-
 </html>
