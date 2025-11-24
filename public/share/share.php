@@ -101,7 +101,7 @@ if (isset($_POST['btnShare'])) {
 
 
 
-// Lấy user_id từ email người nhận 
+// Lấy user_id từ email người nhận // ko an toan
 //     $sql = "SELECT user_id FROM users WHERE email = '$email'";
 //     $result = $conn->query($sql);
 
@@ -448,12 +448,12 @@ if (isset($_POST['btnShare'])) {
         if ($type == "file") {
             $sql = "SELECT users.email, shares.permission
                     FROM shares
-                    JOIN users ON shares.owner_id  = users.user_id
+                    JOIN users ON shares.target_user_id  = users.user_id
                     WHERE file_id = $target_id";
         } else {
             $sql = "SELECT users.email, shares.permission
                     FROM shares
-                    JOIN users ON shares.owner_id  = users.user_id
+                    JOIN users ON shares.target_user_id  = users.user_id
                     WHERE folder_id = $target_id";
         }
 
