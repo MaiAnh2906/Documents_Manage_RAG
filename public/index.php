@@ -11,10 +11,6 @@ $role = $_SESSION['login']['role'];
 // if ($role != 1) {
 //     header('Location: error.php');
 // }
-
-$sql = "SELECT * FROM folders WHERE user_id = $user_id ORDER BY created_at DESC"; // lay ds fd co san
-$result = mysqli_query($conn, $sql);
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -257,22 +253,22 @@ $result = mysqli_query($conn, $sql);
                     </button>
                 </li>
 
-                <?php if($_SESSION['login']['role'] == 1){ ?>
-                <li
-                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
-                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
-                    </button>
-                </li>
+                <?php if ($_SESSION['login']['role'] == 1) { ?>
+                    <li
+                        class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
+                        <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
+                            <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
+                        </button>
+                    </li>
                 <?php } ?>
 
-                <?php if($_SESSION['login']['role'] == 1){ ?>
-                <li
-                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
-                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
-                    </button>
-                </li>
+                <?php if ($_SESSION['login']['role'] == 1) { ?>
+                    <li
+                        class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
+                        <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
+                            <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
+                        </button>
+                    </li>
                 <?php } ?>
 
                 <li
@@ -297,32 +293,162 @@ $result = mysqli_query($conn, $sql);
 
     <!-- MAIN CONTENT -->
     <div class="main-container">
+        <!-- FOLDERS SHARED WITH ME -->
+        <h2 class="text-xl font-bold text-gray-700 uppercase mt-10 mb-4 tracking-wider border-b pb-2">ĐƯỢC CHIA SẺ VỚI TÔI (THƯ MỤC)</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <?php
+            $sqlSharedFolder = "
+                SELECT folders.*, users.username AS owner_name
+                FROM shares
+                JOIN folders ON shares.folder_id = folders.folder_id
+                JOIN users ON shares.owner_id = users.user_id
+                WHERE shares.target_user_id = $user_id
+            ";
+
+            $resSharedFolder = mysqli_query($conn, $sqlSharedFolder);
+
+            if (mysqli_num_rows($resSharedFolder) > 0) {
+                while ($row = mysqli_fetch_assoc($resSharedFolder)) {
+            ?>
+                    <div class="folder-card bg-blue-50 p-4 rounded-xl shadow-sm hover:shadow-lg transition cursor-pointer border border-blue-200">
+                        <div class="flex items-center w-full">
+                            <i class="bi bi-folder-symlink-fill text-blue-500 text-2xl mr-2"></i>
+                            <span class="text-sm font-medium text-gray-800 truncate w-full">
+                                <?php echo $row['name']; ?>
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">Shared by: <?= $row['owner_name'] ?></div>
+                    </div>
+            <?php
+                }
+            }
+            ?>
+        </div>
 
         <!-- FOLDERS SESION-->
         <section class="mb-8 bg-white p-6 rounded-xl">
             <h2 class="text-xl font-bold text-gray-700 uppercase mb-4 tracking-wider border-b pb-2">THƯ MỤC</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 <?php
+                if ($role == 1) {
+                    $sql = "SELECT * FROM folders
+                                JOIN users ON folders.user_id = users.user_id
+                                ORDER BY created_at DESC";
+                } else {
+                    $sql = "SELECT * FROM folders
+                                JOIN users ON folders.user_id = users.user_id
+                                WHERE folders.user_id = $user_id
+                                ORDER BY created_at DESC";
+                }
+                $result = mysqli_query($conn, $sql);
+
                 if (mysqli_num_rows($result) > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) { 
-                        $folder_name = htmlspecialchars($row['name']);?>
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        $folder_name = htmlspecialchars($row['name']); ?>
                         <div class="folder-card bg-gray-50 p-4 rounded-xl shadow-sm hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200 flex flex-col items-center text-left hover:bg-yellow-50" title="<?php echo $folder_name; ?>">
                             <div class="flex items-center w-full">
                                 <i class="bi bi-folder-fill text-yellow-500 text-2xl mr-2"></i>
                                 <span class="text-sm font-medium text-gray-800 truncate w-full"><?php echo $folder_name; ?></span>
-                                <i class="bi bi-three-dots-vertical text-gray-400 hover:text-gray-700 ml-auto"></i>
+                                <!-- dropdown -->
+                                <div class="dropdown">
+                                    <i class="bi bi-three-dots-vertical cursor-pointer text-gray-400 hover:text-gray-700 text-lg" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                    <ul class="dropdown-menu shadow-lg rounded-xl">
+                                        <li>
+                                            <a class="dropdown-item flex items-center gap-2" href="share/share.php?folder_id=<?= $row['folder_id'] ?>">
+                                                <i class="bi bi-share"></i>Chia sẻ
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item flex items-center gap-2" href="#">
+                                                <i class="bi bi-eye"></i> Chi tiết
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item flex items-center gap-2" href="#">
+                                                <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item flex items-center gap-2" href="#">
+                                                <i class="bi bi-download"></i> Tải xuống
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item flex items-center gap-2 text-danger" href="#" onclick="return confirm('Bạn có muốn xóa file này?')">
+                                                <i class="bi bi-trash"></i> Xóa
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+
                             </div>
                         </div>
 
                 <?php   }
                 }
                 ?>
-    
-
             </div>
-
-
         </section>
+
+        <!-- SHARED FILE SESSION -->
+        <h2 class="text-lg font-bold text-gray-700 uppercase mt-10 mb-4 tracking-wider">
+            ĐƯỢC CHIA SẺ VỚI TÔI (TỆP)
+        </h2>
+
+        <div class="overflow-x-auto">
+            <div class="min-w-full">
+                <?php
+                $sqlSharedFile = "
+                    SELECT files.*, users.username AS owner_name
+                    FROM shares
+                    JOIN files ON shares.file_id = files.file_id
+                    JOIN users ON shares.owner_id = users.user_id
+                    WHERE shares.target_user_id = $user_id
+                ";
+
+                $resSharedFile = mysqli_query($conn, $sqlSharedFile);
+
+                if (mysqli_num_rows($resSharedFile) > 0) {
+                    while ($row = mysqli_fetch_assoc($resSharedFile)) {
+
+                        $icons = [
+                            'pdf' => 'bi-file-earmark-pdf-fill',
+                            'doc' => 'bi-file-earmark-word-fill',
+                            'docx' => 'bi-file-earmark-word-fill',
+                            'xls' => 'bi-file-earmark-excel-fill',
+                            'xlsx' => 'bi-file-earmark-excel-fill',
+                            'ppt' => 'bi-file-earmark-ppt-fill',
+                            'pptx' => 'bi-file-earmark-ppt-fill',
+                            'jpg' => 'bi-file-earmark-image-fill',
+                            'png' => 'bi-file-earmark-image-fill',
+                            'zip' => 'bi-file-earmark-zip-fill'
+                        ];
+
+                        $ext = strtolower(pathinfo($row['name'], PATHINFO_EXTENSION));
+                        $icon = $icons[$ext] ?? 'bi-file-earmark-fill';
+                ?>
+                        <div class="file-row grid grid-cols-12 items-center text-sm border-b border-gray-100 py-3">
+                            <div class="col-span-4 lg:col-span-5 flex items-center space-x-3 px-3">
+                                <i class="bi <?= $icon ?> text-xl text-blue-500"></i>
+                                <span class="font-medium text-gray-800"><?= $row['name'] ?></span>
+                            </div>
+                            <div class="col-span-3 lg:col-span-2 text-gray-600 px-3">
+                                Shared by: <?= $row['owner_name'] ?>
+                            </div>
+                            <div class="col-span-2 text-gray-600 px-3"><?= $row['upload_date'] ?></div>
+                            <div class="col-span-2 text-gray-600 px-3"><?= round($row['size'] / (1024 * 1024), 2) ?> MB</div>
+
+                            <div class="col-span-1 flex space-x-2 justify-end px-3">
+                                <i class="bi bi-three-dots-vertical text-lg text-gray-500"></i>
+                            </div>
+                        </div>
+                <?php
+                    }
+                }
+                ?>
+            </div>
+        </div>
 
         <!-- ALL FILES SECTION -->
         <section class="mt-8 bg-white p-6 rounded-xl">
@@ -386,10 +512,12 @@ $result = mysqli_query($conn, $sql);
                                 <div class="col-span-2 text-gray-600 px-3"><?php echo $row['upload_date']; ?></div>
                                 <div class="col-span-2 text-gray-600 px-3"><?php echo round($row['size'] / (1024 * 1024), 2) . " MB"; ?></div>
                                 <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
-                                    <i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
+                                    <!-- share -->
+                                    <a href="/public/share/share.php?file_id=<?= $row['file_id'] ?>"><i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
+                                    </a>
                                     <div class="dropdown">
                                         <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"
-                                        data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                            data-bs-toggle="dropdown" aria-expanded="false"></i>
                                         <ul class="dropdown-menu shadow-lg rounded-xl">
                                             <li>
                                                 <a class="dropdown-item flex items-center gap-2" href="detail_file.php?id=<?php echo $row['file_id']; ?>">
