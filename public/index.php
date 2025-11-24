@@ -408,7 +408,7 @@ $result = mysqli_query($conn, $sql);
                                             </li>
                                             <li>
                                                 <a class="dropdown-item flex items-center gap-2 text-danger" href="delete_file.php?id=<?php echo $row['file_id']; ?>" onclick="return confirm('Bạn có muốn xóa file này?')">
-                                                    <i class="bi bi-trash"></i> Xóa
+                                                    <i class="bi bi-trash"></i> Chuyển vào thùng rác
                                                 </a>
                                             </li>
                                         </ul>
