@@ -1,131 +1,15 @@
 <?php
-include("../../config/config.php");
-session_start();
-if (!isset($_SESSION['login'])) {
-    header("Location: login.php");
+if (!defined('ALLOW_ACCESS')) {
+    die('
+        <script src="https://cdn.tailwindcss.com"></script>
+        <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
+            <img src="assets/images/403.png" class="w-96 mb-4" alt="403"> </div>
+    ');
 }
 
 $user_id = $_SESSION['login']['user_id'];
 $username = $_SESSION['login']['username'];
 $role = $_SESSION['login']['role'];
-
-// xd laoij chia sẻ là file/folder
-$type = "";
-$target_id = ""; /// đối tượng đc shaer
-
-if (isset($_GET['file_id'])) {
-    $type = "file";
-    $target_id = $_GET['file_id'];
-}
-if (isset($_GET['folder_id'])) {
-    $type = "folder";
-    $target_id = $_GET['folder_id'];
-}
-
-if ($type == "") {
-    die("Không xác định loại chia sẻ.");
-}
-
-if (isset($_POST['btnShare'])) {
-    $email = $_POST['email'];
-    $permission = $_POST['permission'];
-    $type = $_POST['type'];
-    $target_id = $_POST['target_id'];
-
-    // tìm userid nhận
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $u = $stmt->get_result();
-
-    if ($u->num_rows == 0) {
-        $error = "Email chưa được đăng ký tài khoản.";
-    } else {
-        $share_to = $u->fetch_assoc()['user_id'];
-
-        // kiểm tra quyền sở hữu
-        if ($type == "file") {
-            $sql = "SELECT user_id FROM files WHERE file_id = ?";
-        } else {
-            $sql = "SELECT user_id FROM folders WHERE folder_id = ?";
-        }
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $target_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $owner = $res->fetch_assoc()['user_id'];
-
-        if ($owner != $user_id) {
-            $error = "Bạn không phải chủ sở hữu!";
-        } else {
-
-            /* --- LUU CHIA SE --- */
-            if ($type == "file") {
-                $sql = "INSERT INTO shares (file_id, owner_id, target_user_id, permission)
-                        VALUES (?, ?, ?, ?)
-                        ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iiis", $target_id, $user_id, $share_to, $permission);
-                $stmt->execute();
-            } else {
-                $sql = "INSERT INTO shares (folder_id, owner_id, target_user_id, permission)
-                        VALUES (?, ?, ?, ?)
-                        ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iiis", $target_id, $user_id, $share_to, $permission);
-                $stmt->execute();
-
-                // chia sẻ all file con trong folder
-                $sql = "SELECT file_id FROM files WHERE folder_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $target_id);
-                $stmt->execute();
-                $files = $stmt->get_result();
-
-                while ($f = $files->fetch_assoc()) {
-                    $fid = $f['file_id'];
-                    $sql2 = "INSERT INTO shares (file_id, user_id, permission)
-                             VALUES (?, ?, ?)
-                             ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                    $stmt2 = $conn->prepare($sql2);
-                    $stmt2->bind_param("iis", $fid, $share_to, $permission);
-                    $stmt2->execute();
-                }
-            }
-
-            $success = "Chia sẻ thành công!";
-        }
-    }
-}
-
-
-
-// Lấy user_id từ email người nhận // ko an toan
-//     $sql = "SELECT user_id FROM users WHERE email = '$email'";
-//     $result = $conn->query($sql);
-
-//     if ($result->num_rows == 0) {
-//         $error = "Người dùng với email này không tồn tại.";
-//     } else {
-//         $row = $result->fetch_assoc();
-//         $share_user_id = $row['user_id'];
-
-//         // Thêm bản ghi chia sẻ
-//         if ($type == "file") {
-//             $sql = "INSERT INTO shares (file_id, user_id, permission) VALUES ($target_id, $share_user_id, '$permission')";
-//         } else {
-//             $sql = "INSERT INTO shares (folder_id, user_id, permission) VALUES ($target_id, $share_user_id, '$permission')";
-//         }
-
-//         if ($conn->query($sql) === TRUE) {
-//             $success = "Chia sẻ thành công với $email.";
-//         } else {
-//             $error = "Lỗi khi chia sẻ: " . $conn->error;
-//         }
-//     }
-// }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -137,7 +21,7 @@ if (isset($_POST['btnShare'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Trang chủ</title>
+    <title><?php echo isset($pageTitle) ? $pageTitle : "Navbar"; ?></title>
     <style>
         .navbar {
             position: fixed;
@@ -286,8 +170,8 @@ if (isset($_POST['btnShare'])) {
         <div class="container-fluid justify-content-between">
             <!-- Logo -->
             <a class="navbar-brand" href="#">
-                <img src="" alt="" width="30" height="24">
-            </a> <span>Doogle Drive</span>
+                <img src="assets/images/logo_drive.png" alt="" width="30" height="30">
+            </a> <span><img src="assets/images/doggle_drive.png" alt="" width="100" height="30"></span>
             <!-- Search -->
             <form method="get" action="search.php"
                 class="relative flex items-center mx-auto bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#387af5] transition-all duration-200 w-[30em]">
@@ -304,8 +188,7 @@ if (isset($_POST['btnShare'])) {
                 <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="userDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="me-2">Xin chào, <?php echo $_SESSION['login']['username']; ?></span>
-                    <img src="https://via.placeholder.com/40" alt="Avatar"
-                        class="rounded-circle border me-2" width="40" height="40" style="margin-left: 10px">
+                    <img class="rounded-circle border me-2" src="https://placehold.co/24x24/dc2626/ffffff?text=<?php echo mb_substr($username, 0, 1, "UTF-8"); ?>" width="40" height="40" style="margin-left: 10px">
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -314,7 +197,7 @@ if (isset($_POST['btnShare'])) {
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item" href="../logout.php">Đăng xuất</a></li>
+                    <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
                 </ul>
             </div>
         </div>
@@ -343,7 +226,7 @@ if (isset($_POST['btnShare'])) {
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="/public/index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
+                        <a href="index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
                     </button>
                 </li>
 
@@ -404,90 +287,6 @@ if (isset($_POST['btnShare'])) {
 
         </nav>
     </div>
-
-
-    <!-- MAIN CONTENT -->
-    <div class="main-container">
-        <h2 class="text-xl font-bold mb-4">
-            Chia sẻ <?php echo ($type == "file") ? "File" : "Folder"; ?>
-        </h2>
-
-        <?php 
-            if (!empty($error)) { ?>
-                <div class="bg-red-200 text-red-700 p-3 rounded mb-3"><?php echo $error ?></div>
-        <?php } 
-            if (!empty($success)) { ?>
-                <div class="bg-green-200 text-green-700 p-3 rounded mb-3"><?php echo $success; ?></div>
-        <?php } ?>
-
-        <form method="POST">
-            <input type="hidden" name="type" value="<?php echo $type; ?>">
-            <input type="hidden" name="target_id" value="<?php echo $target_id; ?>">
-
-            <label>Email người nhận</label>
-            <input type="email" name="email" required class="w-full border p-2 rounded mb-4">
-
-            <label>Quyền truy cập</label>
-            <select name="permission" class="w-full border p-2 rounded mb-4">
-                <option value="viewer">Người quan sát</option>
-                <option value="contributor">Người đóng góp</option>
-                <option value="operator">Người điều hành</option>
-            </select>
-
-            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" name="btnShare">
-                Chia sẻ
-            </button>
-        </form>
-
-
-        <hr class="my-5">
-
-        <h3 class="font-semibold mb-2">Người đã được chia sẻ:</h3>
-
-        <?php
-        if ($type == "file") {
-            $sql = "SELECT users.email, shares.permission
-                    FROM shares
-                    JOIN users ON shares.target_user_id  = users.user_id
-                    WHERE file_id = $target_id";
-        } else {
-            $sql = "SELECT users.email, shares.permission
-                    FROM shares
-                    JOIN users ON shares.target_user_id  = users.user_id
-                    WHERE folder_id = $target_id";
-        }
-
-        $shared = $conn->query($sql);
-
-        if ($shared->num_rows == 0) {
-            echo "<p class='text-gray-500'>Chưa chia sẻ cho ai.</p>";
-        }
-
-        while ($s = $shared->fetch_assoc()) {
-        ?>
-
-            <div class="border p-2 rounded mb-2 flex justify-between">
-                <div>
-                    <b><?php echo $s['email']; ?></b>
-                    — quyền: <b><?php echo $s['permission']; ?></b>
-                </div>
-
-                <!-- unshare -->
-                <a href="unshare.php?type=<?php echo $type; ?>&id=<?php echo $target_id; ?>&email=<?php echo $s['email']; ?>"
-                    class="text-red-600 hover:text-red-800">Hủy</a>
-            </div>
-
-        <?php } ?>
-
-
-
-
-
-
-
-
-    </div>
-
 
 </body>
 

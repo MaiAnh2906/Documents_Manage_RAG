@@ -171,8 +171,8 @@ $role = $_SESSION['login']['role'];
         <div class="container-fluid justify-content-between">
             <!-- Logo -->
             <a class="navbar-brand" href="#">
-                <img src="" alt="" width="30" height="24">
-            </a> <span>Doogle Drive</span>
+                <img src="assets/images/logo_drive.png" alt="" width="30" height="30">
+            </a> <span><img src="assets/images/doggle_drive.png" alt="" width="100" height="30"></span>
             <!-- Search -->
             <form method="get" action="search.php"
                 class="relative flex items-center mx-auto bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#387af5] transition-all duration-200 w-[30em]">
@@ -189,8 +189,7 @@ $role = $_SESSION['login']['role'];
                 <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="userDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="me-2">Xin chào, <?php echo $_SESSION['login']['username']; ?></span>
-                    <img src="https://via.placeholder.com/40" alt="Avatar"
-                        class="rounded-circle border me-2" width="40" height="40" style="margin-left: 10px">
+                    <img class="rounded-circle border me-2" src="https://placehold.co/24x24/dc2626/ffffff?text=<?php echo mb_substr($username, 0, 1, "UTF-8"); ?>" width="40" height="40" style="margin-left: 10px">
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -346,9 +345,12 @@ $role = $_SESSION['login']['role'];
                     while ($row = mysqli_fetch_assoc($result)) {
                         $folder_name = htmlspecialchars($row['name']); ?>
                         <div class="folder-card bg-gray-50 p-4 rounded-xl shadow-sm hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200 flex flex-col items-center text-left hover:bg-yellow-50" title="<?php echo $folder_name; ?>">
+                            <!-- day la 1 folder con -->
                             <div class="flex items-center w-full">
-                                <i class="bi bi-folder-fill text-yellow-500 text-2xl mr-2"></i>
-                                <span class="text-sm font-medium text-gray-800 truncate w-full"><?php echo $folder_name; ?></span>
+                                <a href="folder.php?folder_id=<?= $row['folder_id'] ?>">
+                                    <i class="bi bi-folder-fill text-yellow-500 text-2xl mr-2"></i>
+                                    <span class="text-sm font-medium text-gray-800 truncate w-full"><?php echo $folder_name; ?></span> 
+                                </a>
                                 <!-- dropdown -->
                                 <div class="dropdown">
                                     <i class="bi bi-three-dots-vertical cursor-pointer text-gray-400 hover:text-gray-700 text-lg" data-bs-toggle="dropdown" aria-expanded="false"></i>
