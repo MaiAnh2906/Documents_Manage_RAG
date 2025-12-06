@@ -1,10 +1,10 @@
 <?php
 include("../config/config.php");
+include("auto_clean.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
 }
-
 $user_id = $_SESSION['login']['user_id'];
 $username = $_SESSION['login']['username'];
 $role = $_SESSION['login']['role'];
@@ -274,7 +274,7 @@ $role = $_SESSION['login']['role'];
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-trash"></i> Trash</a>
+                        <a href="trash.php" class="nav-link"><i class="bi bi-trash"></i> Trash</a>
                     </button>
                 </li>
 
@@ -333,11 +333,13 @@ $role = $_SESSION['login']['role'];
                 if ($role == 1) {
                     $sql = "SELECT * FROM folders
                                 JOIN users ON folders.user_id = users.user_id
+                                WHERE folders.is_deleted = 0
                                 ORDER BY created_at DESC";
                 } else {
                     $sql = "SELECT * FROM folders
                                 JOIN users ON folders.user_id = users.user_id
                                 WHERE folders.user_id = $user_id
+                                AND folders.is_deleted = 0
                                 ORDER BY created_at DESC";
                 }
                 $result = mysqli_query($conn, $sql);
@@ -374,8 +376,8 @@ $role = $_SESSION['login']['role'];
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item flex items-center gap-2 text-danger" href="#" onclick="return confirm('Bạn có muốn xóa file này?')">
-                                                <i class="bi bi-trash"></i> Xóa
+                                            <a class="dropdown-item flex items-center gap-2 text-danger" href="move_trash.php?folder_id=<?php echo $row['folder_id']; ?>">
+                                                <i class="bi bi-trash"></i> Chuyển vào thùng rác
                                             </a>
                                         </li>
                                     </ul>
@@ -454,7 +456,7 @@ $role = $_SESSION['login']['role'];
         <section class="mt-8 bg-white p-6 rounded-xl">
             <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">TẤT CẢ TỆP</h2>
 
-            <div class="overflow-x-auto">
+            <div>
                 <div class="min-w-full">
                     <!-- Table Header -->
                     <div class="grid grid-cols-12 text-xs font-bold text-gray-500 border-b border-gray-200 py-3 uppercase">
@@ -471,11 +473,13 @@ $role = $_SESSION['login']['role'];
                     if ($role == 1) {
                         $sql = "SELECT * FROM files
                                 JOIN users ON files.user_id = users.user_id
+                                WHERE files.is_deleted = 0
                                 ORDER BY upload_date DESC";
                     } else {
                         $sql = "SELECT * FROM files
                                 JOIN users ON files.user_id = users.user_id
                                 WHERE files.user_id = $user_id
+                                AND files.is_deleted = 0
                                 ORDER BY upload_date DESC";
                     }
                     $kq = mysqli_query($conn, $sql);
@@ -513,7 +517,7 @@ $role = $_SESSION['login']['role'];
                                 <div class="col-span-2 text-gray-600 px-3"><?php echo round($row['size'] / (1024 * 1024), 2) . " MB"; ?></div>
                                 <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
                                     <!-- share -->
-                                    <a href="/public/share/share.php?file_id=<?= $row['file_id'] ?>"><i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
+                                    <a href="./share/share.php?file_id=<?= $row['file_id'] ?>"><i class="bi bi-link-45deg cursor-pointer hover:text-blue-500 text-lg"></i>
                                     </a>
                                     <div class="dropdown">
                                         <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"
@@ -535,7 +539,7 @@ $role = $_SESSION['login']['role'];
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item flex items-center gap-2 text-danger" href="delete_file.php?id=<?php echo $row['file_id']; ?>" onclick="return confirm('Bạn có muốn xóa file này?')">
+                                                <a class="dropdown-item flex items-center gap-2 text-danger" href="move_trash.php?file_id=<?php echo $row['file_id']; ?>">
                                                     <i class="bi bi-trash"></i> Chuyển vào thùng rác
                                                 </a>
                                             </li>

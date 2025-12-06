@@ -1,130 +1,14 @@
 <?php
-include("../../config/config.php");
+
+use function PHPSTORM_META\type;
+
+include("../config/config.php");
 session_start();
-if (!isset($_SESSION['login'])) {
+if(!isset($_SESSION['login'])){
     header("Location: login.php");
 }
-
-$user_id = $_SESSION['login']['user_id'];
-$username = $_SESSION['login']['username'];
 $role = $_SESSION['login']['role'];
-
-// xd laoij chia sẻ là file/folder
-$type = "";
-$target_id = ""; /// đối tượng đc shaer
-
-if (isset($_GET['file_id'])) {
-    $type = "file";
-    $target_id = $_GET['file_id'];
-}
-if (isset($_GET['folder_id'])) {
-    $type = "folder";
-    $target_id = $_GET['folder_id'];
-}
-
-if ($type == "") {
-    die("Không xác định loại chia sẻ.");
-}
-
-if (isset($_POST['btnShare'])) {
-    $email = $_POST['email'];
-    $permission = $_POST['permission'];
-    $type = $_POST['type'];
-    $target_id = $_POST['target_id'];
-
-    // tìm userid nhận
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $u = $stmt->get_result();
-
-    if ($u->num_rows == 0) {
-        $error = "Email chưa được đăng ký tài khoản.";
-    } else {
-        $share_to = $u->fetch_assoc()['user_id'];
-
-        // kiểm tra quyền sở hữu
-        if ($type == "file") {
-            $sql = "SELECT user_id FROM files WHERE file_id = ?";
-        } else {
-            $sql = "SELECT user_id FROM folders WHERE folder_id = ?";
-        }
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $target_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $owner = $res->fetch_assoc()['user_id'];
-
-        if ($owner != $user_id) {
-            $error = "Bạn không phải chủ sở hữu!";
-        } else {
-
-            /* --- LUU CHIA SE --- */
-            if ($type == "file") {
-                $sql = "INSERT INTO shares (file_id, owner_id, target_user_id, permission)
-                        VALUES (?, ?, ?, ?)
-                        ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iiis", $target_id, $user_id, $share_to, $permission);
-                $stmt->execute();
-            } else {
-                $sql = "INSERT INTO shares (folder_id, owner_id, target_user_id, permission)
-                        VALUES (?, ?, ?, ?)
-                        ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iiis", $target_id, $user_id, $share_to, $permission);
-                $stmt->execute();
-
-                // chia sẻ all file con trong folder
-                $sql = "SELECT file_id FROM files WHERE folder_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $target_id);
-                $stmt->execute();
-                $files = $stmt->get_result();
-
-                while ($f = $files->fetch_assoc()) {
-                    $fid = $f['file_id'];
-                    $sql2 = "INSERT INTO shares (file_id, user_id, permission)
-                             VALUES (?, ?, ?)
-                             ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                    $stmt2 = $conn->prepare($sql2);
-                    $stmt2->bind_param("iis", $fid, $share_to, $permission);
-                    $stmt2->execute();
-                }
-            }
-
-            $success = "Chia sẻ thành công!";
-        }
-    }
-}
-
-
-
-// Lấy user_id từ email người nhận // ko an toan
-//     $sql = "SELECT user_id FROM users WHERE email = '$email'";
-//     $result = $conn->query($sql);
-
-//     if ($result->num_rows == 0) {
-//         $error = "Người dùng với email này không tồn tại.";
-//     } else {
-//         $row = $result->fetch_assoc();
-//         $share_user_id = $row['user_id'];
-
-//         // Thêm bản ghi chia sẻ
-//         if ($type == "file") {
-//             $sql = "INSERT INTO shares (file_id, user_id, permission) VALUES ($target_id, $share_user_id, '$permission')";
-//         } else {
-//             $sql = "INSERT INTO shares (folder_id, user_id, permission) VALUES ($target_id, $share_user_id, '$permission')";
-//         }
-
-//         if ($conn->query($sql) === TRUE) {
-//             $success = "Chia sẻ thành công với $email.";
-//         } else {
-//             $error = "Lỗi khi chia sẻ: " . $conn->error;
-//         }
-//     }
-// }
+$user_id = $_SESSION['login']['user_id'];
 
 ?>
 <!DOCTYPE html>
@@ -137,7 +21,7 @@ if (isset($_POST['btnShare'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Trang chủ</title>
+    <title>Trash</title>
     <style>
         .navbar {
             position: fixed;
@@ -149,7 +33,6 @@ if (isset($_POST['btnShare'])) {
         body {
             padding-top: 65px;
         }
-
         .search {
             border: none;
             margin-left: 10px;
@@ -231,7 +114,7 @@ if (isset($_POST['btnShare'])) {
             margin-left: 250px;
             padding: 20px;
             min-height: 100vh;
-            /* background-color: #f4f7f9; */
+            background-color: #f4f7f9;
         }
 
         .file-row:hover {
@@ -311,10 +194,8 @@ if (isset($_POST['btnShare'])) {
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                     <li><a class="dropdown-item" href="profile.php">Trang cá nhân</a></li>
                     <li><a class="dropdown-item" href="settings.php">Cài đặt</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item" href="../logout.php">Đăng xuất</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
                 </ul>
             </div>
         </div>
@@ -328,11 +209,11 @@ if (isset($_POST['btnShare'])) {
                 <i class="bi bi-plus-lg me-2"></i> New
             </button>
             <ul class="dropdown-menu shadow-xl" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item flex items-center" href="create_folder.php"><i class="bi bi-folder me-2 text-yellow-600"></i> Thư mục mới</a></li>
+                <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-folder me-2 text-yellow-600"></i> Thư mục mới</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item flex items-center" href="upload.php"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
+                <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
                 <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-folder-fill me-2 text-gray-500"></i> Tải thư mục lên</a></li>
             </ul>
         </div>
@@ -343,7 +224,7 @@ if (isset($_POST['btnShare'])) {
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="../index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
+                        <a href="index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
                     </button>
                 </li>
 
@@ -368,23 +249,26 @@ if (isset($_POST['btnShare'])) {
                     </button>
                 </li>
 
-                <?php if ($_SESSION['login']['role'] == 1) { ?>
-                    <li
-                        class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
-                        <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                            <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
-                        </button>
-                    </li>
-                <?php } ?>
+                <?php if($role == 1){ ?>
+                <li
+                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
+                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
+                        <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
+                    </button>
+                </li>
+                <?php
+                } ?>
 
-                <?php if ($_SESSION['login']['role'] == 1) { ?>
-                    <li
-                        class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
-                        <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                            <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
-                        </button>
-                    </li>
-                <?php } ?>
+                <?php if($role == 1){ ?>
+                <li
+                    class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
+                    <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
+                        <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
+                    </button>
+                </li>
+                <?php
+                } ?>
+
 
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
@@ -405,91 +289,115 @@ if (isset($_POST['btnShare'])) {
         </nav>
     </div>
 
-
-    <!-- MAIN CONTENT -->
     <div class="main-container">
-        <h2 class="text-xl font-bold mb-4">
-            Chia sẻ <?php echo ($type == "file") ? "File" : "Folder"; ?>
-        </h2>
+    <h1 class="text-xl font-bold text-gray-700 uppercase mb-4  pb-2">Thùng rác</h1>
+        <div >
 
-        <?php 
-            if (!empty($error)) { ?>
-                <div class="bg-red-200 text-red-700 p-3 rounded mb-3"><?php echo $error ?></div>
-        <?php } 
-            if (!empty($success)) { ?>
-                <div class="bg-green-200 text-green-700 p-3 rounded mb-3"><?php echo $success; ?></div>
-        <?php } ?>
+                <div class="min-w-full">
+                    <!-- Table Header -->
+                    <div class="grid grid-cols-12 text-xs font-bold text-gray-500 border-b border-gray-200 py-3 uppercase">
+                        <div class="col-span-4 lg:col-span-5 px-3">NAME</div>
+                        <div class="col-span-3 lg:col-span-2 px-3">OWNERS</div>
+                        <div class="col-span-2 px-3">DELETED AT</div>
+                        <div class="col-span-2 px-3">EXPIRY DATE</div>
+                        <div class="col-span-1 px-3 text-right"></div> <!-- Links/Options -->
+                    </div>
 
-        <form method="POST">
-            <input type="hidden" name="type" value="<?php echo $type; ?>">
-            <input type="hidden" name="target_id" value="<?php echo $target_id; ?>">
+                    <!-- Thêm file bằng php -->
 
-            <label>Email người nhận</label>
-            <input type="email" name="email" required class="w-full border p-2 rounded mb-4">
+                    <?php
+                    if ($role == 1) {
+                        $sql = "SELECT recycle_bin.*,
+                                        files.name AS file_name,
+                                        folders.name AS folder_name,
+                                        users.username FROM recycle_bin
+                                LEFT JOIN users ON recycle_bin.user_id = users.user_id
+                                LEFT JOIN files ON recycle_bin.file_id = files.file_id
+                                LEFT JOIN folders ON recycle_bin.folder_id = folders.folder_id
+                                ";
+                    } else {
+                        $sql = "SELECT recycle_bin.*,
+                                        files.name AS file_name,
+                                        folders.name AS folder_name,
+                                        users.username FROM recycle_bin
+                                LEFT JOIN files ON recycle_bin.file_id = files.file_id
+                                LEFT JOIN users ON recycle_bin.user_id = users.user_id
+                                LEFT JOIN folders ON recycle_bin.folder_id = folders.folder_id
+                                WHERE recycle_bin.user_id = $user_id";
+                    }
+                    $kq = mysqli_query($conn, $sql);
 
-            <label>Quyền truy cập</label>
-            <select name="permission" class="w-full border p-2 rounded mb-4">
-                <option value="viewer">Người quan sát</option>
-                <option value="contributor">Người đóng góp</option>
-                <option value="operator">Người điều hành</option>
-            </select>
+                    if (mysqli_num_rows($kq) > 0) {
+                        while ($row = mysqli_fetch_assoc($kq)) {
+                            $isFile = !empty($row['file_id']);
+                            $isFolder = !empty($row['folder_id']);
+                            $icons = [
+                                'pdf' => 'bi-file-earmark-pdf-fill',
+                                'doc' => 'bi-file-earmark-word-fill',
+                                'docx' => 'bi-file-earmark-word-fill',
+                                'xls' => 'bi-file-earmark-excel-fill',
+                                'xlsx' => 'bi-file-earmark-excel-fill',
+                                'ppt' => 'bi-file-earmark-ppt-fill',
+                                'pptx' => 'bi-file-earmark-ppt-fill',
+                                'jpg' => 'bi-file-earmark-image-fill',
+                                'png' => 'bi-file-earmark-image-fill',
+                                'zip' => 'bi-file-earmark-zip-fill'
+                            ];
 
-            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" name="btnShare">
-                Chia sẻ
-            </button>
-        </form>
+                            if ($isFile) {
+                                $name = $row['file_name'];  
+                                $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                                $icon = $icons[$ext] ?? 'bi-file-earmark-fill';
+                            } elseif ($isFolder) {
+                                $name = $row['folder_name']; 
+                                $icon = 'bi-folder-fill';   
+                            }
 
+                            $firstLetter = mb_substr($row['username'], 0, 1, "UTF-8");
 
-        <hr class="my-5">
+                    ?>
+                            <div class="file-row grid grid-cols-12 items-center text-sm border-b border-gray-100 py-3 transition duration-150">
+                                <div class="col-span-4 lg:col-span-5 flex items-center space-x-3 px-3">
+                                    <i class="bi <?php echo $icon; ?> text-xl"></i>
+                                    <span class="font-medium text-gray-800"><?php echo $name; ?></span>
+                                </div>
 
-        <h3 class="font-semibold mb-2">Người đã được chia sẻ:</h3>
+                                <div class="col-span-3 lg:col-span-2 avatar-group">
+                                    <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://placehold.co/24x24/dc2626/ffffff?text=<?php echo $firstLetter; ?>" alt="<?php echo "Owner " . $name; ?>">
+                                </div>
 
-        <?php
-        if ($type == "file") {
-            $sql = "SELECT users.email, shares.permission, shares.share_id
-                    FROM shares
-                    JOIN users ON shares.target_user_id  = users.user_id
-                    WHERE file_id = $target_id";
-        } else {
-            $sql = "SELECT users.email, shares.permission, shares_share_id
-                    FROM shares
-                    JOIN users ON shares.target_user_id  = users.user_id
-                    WHERE folder_id = $target_id";
-        }
+                                <div class="col-span-2 text-gray-600 px-3"><?php echo $row['deleted_at']; ?></div>
 
-        $shared = $conn->query($sql);
+                                <div class="col-span-2 text-gray-600 px-3"><?php echo $row['expiry_date']; ?></div>
 
-        if ($shared->num_rows == 0) {
-            echo "<p class='text-gray-500'>Chưa chia sẻ cho ai.</p>";
-        }
+                                <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"
+                                            data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                        <ul class="dropdown-menu shadow-lg rounded-xl">
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2" href="restore.php?id=<?php echo $row['id']; ?>">
+                                                    <i class="bi bi-eye"></i> Khôi phục
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2 text-danger" href="delete.php?id=<?php echo $row['id']; ?>">
+                                                    <i class="bi bi-trash"></i> Xóa vĩnh viễn
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
 
-        while ($s = $shared->fetch_assoc()) {
-            $share_id = $s['share_id'];
-        ?>
-
-            <div class="border p-2 rounded mb-2 flex justify-between">
-                <div>
-                    <b><?php echo $s['email']; ?></b>
-                    — quyền: <b><?php echo $s['permission']; ?></b>
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    }
+                    ?>
                 </div>
-
-                <!-- unshare -->
-                <a href="unshare.php?share_id=<?php echo $share_id; ?>&type=<?php echo $type; ?>&target_id=<?php echo $target_id; ?>"
-                    class="text-red-600 hover:text-red-800">Hủy</a>
             </div>
-
-        <?php } ?>
-
-
-
-
-
-
-
-
+        
     </div>
 
-
 </body>
-
 </html>
