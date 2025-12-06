@@ -451,7 +451,7 @@ if (isset($_POST['btnShare'])) {
                     JOIN users ON shares.target_user_id  = users.user_id
                     WHERE file_id = $target_id";
         } else {
-            $sql = "SELECT users.email, shares.permission, shares_share_id
+            $sql = "SELECT users.email, shares.permission, shares.share_id
                     FROM shares
                     JOIN users ON shares.target_user_id  = users.user_id
                     WHERE folder_id = $target_id";
