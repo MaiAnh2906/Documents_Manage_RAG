@@ -343,14 +343,14 @@ if (isset($_POST['btnShare'])) {
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="/public/index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
+                        <a href="../index.php" class="nav-link"><i class="bi bi-house"></i> Trang chủ</a>
                     </button>
                 </li>
 
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
+                        <a href="../drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
                     </button>
                 </li>
 
@@ -372,7 +372,7 @@ if (isset($_POST['btnShare'])) {
                     <li
                         class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                         <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                            <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
+                            <a href="../user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
                         </button>
                     </li>
                 <?php } ?>
@@ -389,7 +389,7 @@ if (isset($_POST['btnShare'])) {
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-trash"></i> Trash</a>
+                        <a href="../trash.php" class="nav-link"><i class="bi bi-trash"></i> Trash</a>
                     </button>
                 </li>
 
@@ -479,13 +479,6 @@ if (isset($_POST['btnShare'])) {
             </div>
 
         <?php } ?>
-
-
-
-
-
-
-
 
     </div>
 

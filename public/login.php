@@ -25,7 +25,11 @@ if (isset($_POST['btn_login'])) {
             $row = mysqli_fetch_assoc($result);
             // $_SESSION['login'] = [];
 
-            if ($passmd5 ==  $row['password']) {
+            if($row['status'] == 0){
+                header("Location: ../public/assets/images/403.php");
+            }
+
+            elseif ($passmd5 ==  $row['password']) {
             
                 $_SESSION['login'] = $row;
                 $role = $_SESSION['login']['role'];
