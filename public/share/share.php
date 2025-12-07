@@ -350,7 +350,7 @@ if (isset($_POST['btnShare'])) {
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
+                        <a href="/public/drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
                     </button>
                 </li>
 
@@ -451,7 +451,7 @@ if (isset($_POST['btnShare'])) {
                     JOIN users ON shares.target_user_id  = users.user_id
                     WHERE file_id = $target_id";
         } else {
-            $sql = "SELECT users.email, shares.permission, shares_share_id
+            $sql = "SELECT users.email, shares.permission, shares.share_id
                     FROM shares
                     JOIN users ON shares.target_user_id  = users.user_id
                     WHERE folder_id = $target_id";
