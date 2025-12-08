@@ -1,4 +1,7 @@
-<?php 
+<?php
+
+use Pdo\Mysql;
+
 include("../config/config.php");
 include("auto_clean.php");
 session_start();
@@ -27,6 +30,25 @@ if (!$folder) {
 }
 
 $isOwner = ($user_id == $folder['owner_id']); 
+
+$participants = [];
+$sql = "SELECT users.username, shares.permission FROM shares 
+        JOIN users ON shares.target_user_id = users.user_id
+        WHERE shares.folder_id = $folder_id";
+$kq = mysqli_query($conn, $sql);
+while($row = mysqli_fetch_assoc($kq)){
+    $participants[] = $row;
+}
+
+$sql = "SELECT permission FROM shares 
+        WHERE folder_id = $folder_id
+        AND target_user_id = $user_id";
+$kq = mysqli_query($conn, $sql);
+$row = mysqli_fetch_assoc($kq);
+
+$permission = $row['permission'] ?? null;
+
+$canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operator');
 
 ?>
 <!DOCTYPE html>
@@ -77,32 +99,42 @@ $isOwner = ($user_id == $folder['owner_id']);
 <!-- SIDEBAR -->
 <aside class="sidebar">
 
-    <!-- Tên dự án -->
     <h2 class="text-xl font-bold mb-3"><?php echo htmlspecialchars($folder['name']); ?></h2>
     <hr>
 
     <p class="text-sm tracking-wide mt-3 mb-2 opacity-90 font-semibold">
         Thao tác
     </p>
-    <!-- Ngừng dự án -->
+
     <?php if ($isOwner) { ?>
     <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg mb-3">
         Ngừng dự án
     </button>
     <?php } ?>
 
-    <!-- Quay lại -->
-    <button class="sidebar-btn mb-5">
-        ← Quay lại danh sách dự án
-    </button>
+    <a 
+    href="index.php"
+    class="inline-flex items-center gap-2 px-4 py-2 mb-5
+           bg-white border border-gray-300 text-gray-700 
+           rounded-lg shadow-sm hover:bg-gray-100 
+           hover:border-gray-400 transition-all duration-200">
+    ← Quay lại trang chủ
+    </a>
+
+
 
     <!-- Thành viên -->
     <h3 class="text-lg font-semibold mb-2">Danh sách thành viên</h3>
 
     <ul class="space-y-2 mb-4">
-        <li class="member-item p-2 rounded">👑 Owner — Nguyễn Văn A</li>
-        <li class="member-item p-2 rounded">👤 viewer — user01</li>
-        <li class="member-item p-2 rounded">👤 editor — user02</li>
+        <li class="member-item p-2 rounded">👑 Owner — <?php echo $folder['owner_name']; ?></li>
+        <?php
+            foreach ($participants as $participant) {
+                echo '<li class="member-item p-2 rounded">👤 ' . $participant['permission']. ' — ' . $participant['username'] . ' </li>';
+            }
+        ?>
+        
+        <!-- <li class="member-item p-2 rounded">👤 editor — user02</li> -->
     </ul>
 
     <?php if ($isOwner) { ?>
@@ -118,9 +150,12 @@ $isOwner = ($user_id == $folder['owner_id']);
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-700">Bảng làm việc dự án</h1>
 
-        <button class="bg-[#387af5] hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow">
+        <?php if($canAdd){ ?> 
+        <a href="add_content.php?folder_id=<?php echo $folder_id; ?>&user_id=<?php echo $user_id; ?>"
+        class="bg-[#387af5] hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow inline-block">
             + Thêm nội dung
-        </button>
+        </a>
+        <?php } ?>
     </div>
 
     <!-- CONTENT SECTION -->

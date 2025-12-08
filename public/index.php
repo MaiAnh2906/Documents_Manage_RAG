@@ -313,6 +313,7 @@ $role = $_SESSION['login']['role'];
             ?>
                     <div class="folder-card bg-blue-50 p-4 rounded-xl shadow-sm hover:shadow-lg transition cursor-pointer border border-blue-200">
                         <div class="flex items-center w-full">
+                            <a href="folder.php?folder_id=<?= $row['folder_id'] ?>">
                             <i class="bi bi-folder-symlink-fill text-blue-500 text-2xl mr-2"></i>
                             <span class="text-sm font-medium text-gray-800 truncate w-full">
                                 <?php echo $row['name']; ?>
@@ -445,9 +446,25 @@ $role = $_SESSION['login']['role'];
                             <div class="col-span-2 text-gray-600 px-3"><?= $row['upload_date'] ?></div>
                             <div class="col-span-2 text-gray-600 px-3"><?= round($row['size'] / (1024 * 1024), 2) ?> MB</div>
 
-                            <div class="col-span-1 flex space-x-2 justify-end px-3">
-                                <i class="bi bi-three-dots-vertical text-lg text-gray-500"></i>
-                            </div>
+                            <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
+                                    <div>
+                                        <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"
+                                            data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                        <ul class="dropdown-menu shadow-lg rounded-xl">
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2" href="detail_file.php?id=<?php echo $row['file_id']; ?>">
+                                                    <i class="bi bi-eye"></i> Chi tiết
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2" href="download_file.php?id=<?php echo $row['file_id']; ?>">
+                                                    <i class="bi bi-download"></i> Tải xuống
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                </div>
                         </div>
                 <?php
                     }
