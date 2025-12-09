@@ -318,6 +318,7 @@ $role = $_SESSION['login']['role'];
                             <span class="text-sm font-medium text-gray-800 truncate w-full">
                                 <?php echo $row['name']; ?>
                             </span>
+                            </a>
                         </div>
                         <div class="text-xs text-gray-500 mt-1">Shared by: <?= $row['owner_name'] ?></div>
                     </div>
