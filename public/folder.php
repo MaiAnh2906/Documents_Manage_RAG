@@ -162,47 +162,57 @@ $canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operato
     <section class="bg-white p-6 rounded-xl shadow">
         <h2 class="text-lg font-bold text-gray-700 mb-4">Nội dung dự án</h2>
 
-        <!-- Bài 1 -->
-        <div class="border p-4 rounded-lg mb-4 hover:bg-gray-50 transition">
-            <div class="flex justify-between">
-                <div>
-                    <h3 class="font-semibold text-lg">Tiêu đề bài viết 1</h3>
-                    <p class="text-sm text-gray-500">
-                        user02 · 2025-01-05
-                    </p>
+        <?php
+            $sql = "SELECT * FROM contents 
+                    JOIN users ON contents.user_id = users.user_id";
+            $kq = mysqli_query($conn, $sql);
+            while($row = mysqli_fetch_assoc($kq)){
+        ?>
+            <div class="border p-4 rounded-lg mb-4 hover:bg-gray-50 transition">
+                <div class="flex justify-between">
+                    <div>
+                        <h3 class="font-semibold text-lg"><?php echo $row['title']; ?></h3>
+                        <p class="text-sm text-gray-500">
+                            <?php echo $row['username'] . " . " . $row['created_at'] ; ?>
+                        </p>
+                        
+                    </div>
+
+                    <div class="space-x-3">
+                        <button class="text-blue-600">Sửa</button>
+                        <button class="text-red-600">Xóa</button>
+                    </div>
                 </div>
 
-                <div class="space-x-3">
-                    <button class="text-blue-600">Sửa</button>
-                    <button class="text-red-600">Xóa</button>
-                </div>
+                <p class="mt-3 text-gray-700">
+                    <?php echo $row['content_text']; ?>
+                </p>
+
+                <?php if (!empty($row['file_path'])){ ?>
+                    <div class="mt-4 p-3 border border-gray-300 rounded-lg bg-gray-50 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <i class="bi bi-file-earmark-text text-blue-600 text-xl"></i>
+
+                            <div>
+                                <p class="font-medium text-gray-700"><?php echo $row['file_name']; ?></p>
+                                <p class="text-xs text-gray-500">
+                                    <?php echo strtoupper($row['file_type']); ?> —
+                                    <?php echo round($row['file_size'] / 1024, 1); ?> KB
+                                </p>
+                            </div>
+                        </div>
+
+                        <a href="<?php echo $row['file_path']; ?>" 
+                        download
+                        class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">
+                            Tải xuống
+                        </a>
+                    </div>
+                <?php } ?>
             </div>
-
-            <p class="mt-3 text-gray-700">
-                Nội dung bài viết hiển thị ở đây...
-            </p>
-        </div>
-
-        <!-- Bài 2 -->
-        <div class="border p-4 rounded-lg hover:bg-gray-50 transition">
-            <div class="flex justify-between">
-                <div>
-                    <h3 class="font-semibold text-lg">Tiêu đề bài viết 2</h3>
-                    <p class="text-sm text-gray-500">
-                        user01 · 2025-01-04
-                    </p>
-                </div>
-
-                <div class="space-x-3">
-                    <button class="text-blue-600">Sửa</button>
-                    <button class="text-red-600">Xóa</button>
-                </div>
-            </div>
-
-            <p class="mt-3 text-gray-700">
-                Nội dung bài viết hiển thị ở đây...
-            </p>
-        </div>
+        <?php
+            }
+        ?>
 
     </section>
 </main>
