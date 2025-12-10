@@ -304,6 +304,7 @@ $role = $_SESSION['login']['role'];
                 JOIN folders ON shares.folder_id = folders.folder_id
                 JOIN users ON shares.owner_id = users.user_id
                 WHERE shares.target_user_id = $user_id
+                AND shares.is_deleted = 0;
             ";
 
             $resSharedFolder = mysqli_query($conn, $sqlSharedFolder);
@@ -334,12 +335,12 @@ $role = $_SESSION['login']['role'];
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 <?php
                 if ($role == 1) {
-                    $sql = "SELECT * FROM folders
+                    $sql = "SELECT folders.*, users.username FROM folders
                                 JOIN users ON folders.user_id = users.user_id
                                 WHERE folders.is_deleted = 0
                                 ORDER BY created_at DESC";
                 } else {
-                    $sql = "SELECT * FROM folders
+                    $sql = "SELECT folders.*, users.username FROM folders
                                 JOIN users ON folders.user_id = users.user_id
                                 WHERE folders.user_id = $user_id
                                 AND folders.is_deleted = 0
@@ -356,6 +357,19 @@ $role = $_SESSION['login']['role'];
                                 <a href="folder.php?folder_id=<?= $row['folder_id'] ?>">
                                     <i class="bi bi-folder-fill text-yellow-500 text-2xl mr-2"></i>
                                     <span class="text-sm font-medium text-gray-800 truncate w-full"><?php echo $folder_name; ?></span> 
+
+                                    <p class="text-xs mt-1">
+                                        <?php if ($row['status'] == 1) { ?>
+                                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs flex items-center">
+                                                Hoạt động
+                                            </span>
+                                        <?php } else { ?>
+                                            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs flex items-center">
+                                                Ngừng hoạt động
+                                            </span>
+                                        <?php } ?>
+                                    </p>
+
                                 </a>
                                 <!-- dropdown -->
                                 <div class="dropdown">
@@ -413,6 +427,7 @@ $role = $_SESSION['login']['role'];
                     JOIN files ON shares.file_id = files.file_id
                     JOIN users ON shares.owner_id = users.user_id
                     WHERE shares.target_user_id = $user_id
+                    AND shares.is_deleted = 0;
                 ";
 
                 $resSharedFile = mysqli_query($conn, $sqlSharedFile);

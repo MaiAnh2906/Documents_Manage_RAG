@@ -48,7 +48,35 @@ $row = mysqli_fetch_assoc($kq);
 
 $permission = $row['permission'] ?? null;
 
-$canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operator');
+$canAdd = ($isOwner || ($permission == 'contributor') || ($permission == 'operator')) && ($folder['status'] == 1);
+
+
+if(isset($_GET['delete_content_id'])){
+    $delete_ct = $_GET['delete_content_id'];
+
+    $sql = "SELECT * FROM contents WHERE content_id = $delete_ct";
+    $kq = mysqli_query($conn, $sql);
+    $r = mysqli_fetch_assoc($kq);
+    $path = $r['file_path'];
+    if(file_exists($path)){
+        unlink($path);
+    }
+
+    $sql = "DELETE FROM contents WHERE content_id = $delete_ct";
+    mysqli_query($conn, $sql);
+    header("Location: folder.php?folder_id=$folder_id");
+    exit();
+}
+
+if(isset($_POST['btn_stop'])){
+
+    $sql = "UPDATE folders SET status = 0 WHERE folder_id = $folder_id";
+    mysqli_query($conn, $sql);
+
+    $sql = "UPDATE shares SET permission = 'viewer' WHERE folder_id = $folder_id";
+    mysqli_query($conn, $sql);
+    
+}
 
 ?>
 <!DOCTYPE html>
@@ -99,7 +127,18 @@ $canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operato
 <!-- SIDEBAR -->
 <aside class="sidebar">
 
-    <h2 class="text-xl font-bold mb-3"><?php echo htmlspecialchars($folder['name']); ?></h2>
+    <div class="flex items-center gap-2">
+        <h2 class="text-xl font-bold"><?php echo htmlspecialchars($folder['name']); ?></h2>
+        <?php if ($folder['status'] == 1) { ?>
+            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs flex items-center">
+                Hoạt động
+            </span>
+        <?php } else { ?>
+            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs flex items-center">
+                Ngừng hoạt động
+            </span>
+        <?php } ?>
+    </div>
     <hr>
 
     <p class="text-sm tracking-wide mt-3 mb-2 opacity-90 font-semibold">
@@ -107,9 +146,9 @@ $canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operato
     </p>
 
     <?php if ($isOwner) { ?>
-    <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg mb-3">
-        Ngừng dự án
-    </button>
+    <form method="post">
+    <input type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg mb-3" name="btn_stop" onclick="return confirm('Bạn có chắc muốn ngừng dự án không?');" value="Ngừng dự án">
+    </form>
     <?php } ?>
 
     <a 
@@ -134,7 +173,6 @@ $canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operato
             }
         ?>
         
-        <!-- <li class="member-item p-2 rounded">👤 editor — user02</li> -->
     </ul>
 
     <?php if ($isOwner) { ?>
@@ -158,13 +196,14 @@ $canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operato
         <?php } ?>
     </div>
 
-    <!-- CONTENT SECTION -->
     <section class="bg-white p-6 rounded-xl shadow">
         <h2 class="text-lg font-bold text-gray-700 mb-4">Nội dung dự án</h2>
 
         <?php
-            $sql = "SELECT * FROM contents 
-                    JOIN users ON contents.user_id = users.user_id";
+            $sql = "SELECT contents.*, contents.status AS content_status, users.username  FROM contents 
+                    JOIN users ON contents.user_id = users.user_id
+                    WHERE contents.folder_id = $folder_id
+                    ORDER BY contents.content_id DESC";
             $kq = mysqli_query($conn, $sql);
             while($row = mysqli_fetch_assoc($kq)){
         ?>
@@ -175,12 +214,38 @@ $canAdd = $isOwner || ($permission == 'contributor') || ($permission == 'operato
                         <p class="text-sm text-gray-500">
                             <?php echo $row['username'] . " . " . $row['created_at'] ; ?>
                         </p>
+                        <p class="text-sm mt-1">
+                            <?php if ($row['status'] == "approved"){ ?>
+                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                                    Đã duyệt
+                                </span>
+                            <?php } elseif ($row['status'] == "pending"){ ?>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">Chưa duyệt</span>
+
+                            <?php } elseif ($row['status'] == "rejected"){ ?>
+                                <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">Từ chối</span>
+                            <?php } ?>
+                        </p>
                         
                     </div>
 
                     <div class="space-x-3">
-                        <button class="text-blue-600">Sửa</button>
-                        <button class="text-red-600">Xóa</button>
+                        <?php if($isOwner && (!$row['status'] == "approved")){ ?> 
+                        <a href="?content_id=<?php echo $row['content_id']; ?>&status=approved&folder_id=<?php echo $folder_id; ?>" 
+                        class="text-green-600 font-semibold">
+                            Duyệt
+                        </a>
+
+                        <a href="?content_id=<?php echo $row['content_id']; ?>&status=rejected&folder_id=<?php echo $folder_id; ?>" 
+                        class="text-yellow-600 font-semibold">
+                            Từ chối
+                        </a>
+                        <?php } ?>
+
+                        <a href="edit_content.php?folder_id=<?php echo $folder_id; ?>&content_id=<?php echo $row['content_id']; ?>" class="text-blue-600">Sửa</a>
+
+                        <a href="?folder_id=<?php echo $folder_id; ?>&delete_content_id=<?php echo $row['content_id']; ?>" class="text-red-600" onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</a>
+                        
                     </div>
                 </div>
 
