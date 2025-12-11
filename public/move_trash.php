@@ -24,7 +24,10 @@ if(isset($_GET['file_id'])){
 }
 
 if($type == "file"){
-    $sql = "UPDATE files SET is_deleted = 1, deleted_at = NOW() WHERE file_id = $id";
+    $sql = "UPDATE files 
+    LEFT JOIN shares ON files.file_id = shares.file_id
+    SET files.is_deleted = 1, files.deleted_at = NOW(), shares.is_deteled = 1
+    WHERE files.file_id = $id";
     mysqli_query($conn, $sql);
 
     $sql = "SELECT * FROM files WHERE file_id = $id";
@@ -41,17 +44,19 @@ if($type == "file"){
 }
 
 if($type == "folder"){
-    $sql = "UPDATE folders SET is_deleted = 1, deleted_at = NOW() WHERE folder_id = $id";
+    $sql = "UPDATE folders 
+        LEFT JOIN shares ON folders.folder_id = shares.folder_id
+        SET folders.is_deleted = 1, folders.deleted_at = NOW(), shares.is_deleted = 1
+        WHERE folders.folder_id = $id";
     mysqli_query($conn, $sql);
 
     $sql = "SELECT * FROM folders WHERE folder_id = $id";
     $kq = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($kq);
     $user_id = $row['user_id'];
-    $deleted_at = $row['deleted_at'];
     $expireDays = 7;
 
-    $sql = "INSERT INTO recycle_bin (folder_id, user_id, deleted_at, expiry_date) VALUES ($id, $user_id, '$deleted_at', DATE_ADD(NOW(), INTERVAL $expireDays DAY))";
+    $sql = "INSERT INTO recycle_bin (folder_id, user_id, deleted_at, expiry_date) VALUES ($id, $user_id, NOW(), DATE_ADD(NOW(), INTERVAL $expireDays DAY))";
     mysqli_query($conn, $sql);
 }
 

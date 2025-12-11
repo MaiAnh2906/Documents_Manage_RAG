@@ -25,12 +25,29 @@ if($isFile){
     if (!empty($file_path) && file_exists($file_path)) {
         unlink($file_path);
     }
-    $sql = "DELETE FROM files WHERE file_id = $file_id";
+    $sql = "DELETE files, shares FROM files 
+    JOIN shares ON files.file_id = shares.file_id
+    WHERE files.file_id = $file_id";
     mysqli_query($conn, $sql);
 }
 if($isFolder){
     $folder_id = $row['folder_id'];
-    $sql = "DELETE FROM folders WHERE folder_id = $folder_id";
+
+    $sql = "SELECT file_path FROM contents WHERE folder_id = $folder_id";
+    $result = mysqli_query($conn, $sql);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $filePath = $row['file_path'];
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+    }
+
+    $sql = "DELETE folders, contents, shares FROM folders 
+    LEFT JOIN contents ON folders.folder_id = contents.folder_id
+    LEFT JOIN shares ON folders.folder_id = shares.folder_id
+    WHERE folders.folder_id = $folder_id";
     mysqli_query($conn, $sql);
 }
 

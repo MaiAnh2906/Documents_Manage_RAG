@@ -4,6 +4,7 @@
 if(isset($_POST['sbt_register'])){
     $name = $_POST['name'] ?? "";
     $password = $_POST['password'] ?? "";
+    $re_password = $_POST['re_password'] ?? "";
     $email = $_POST['email'] ?? "";
     $phone_number = $_POST['phone_number'] ?? "";
     $passwordMd5 = md5($password);
@@ -32,6 +33,12 @@ if(isset($_POST['sbt_register'])){
         }
         elseif(strlen($_POST['phone_number']) != 10 || !is_numeric($_POST['phone_number']) || $_POST['phone_number'][0] != 0){
             $errorPhone = "*Vui lòng nhập đúng định dạng số điện thoại!";
+        }
+
+        if(empty($_POST['re_password'])){
+            $errorErPassword = "Vui lòng nhập lại mật khẩu";
+        }elseif($password != $re_password){
+            $errorErPassword = "Mật khẩu không trùng khớp";
         }
         
     }else{
@@ -93,13 +100,6 @@ if(isset($_POST['sbt_register'])){
                 </div>
                 <div class="error"><?php echo (isset($errorName)) ? $errorName : "" ?></div>
 
-                <div class="input-box <?php echo (isset($errorPassword)) ? 'error_border' : '';?>">
-                    <span class="icon"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" id="password" name="password" value="<?php if(isset($_POST['password'])) {echo $_POST['password'];} ?>">
-                    <label for="">Mật khẩu </label>
-                </div>
-                <div class="error"><?php echo (isset($errorPassword)) ? $errorPassword : "" ?></div>
-
                 <div class="input-box <?php echo (isset($errorEmail)) ? 'error_border' : '';?>">
                     <span class="icon"><i class="fa-solid fa-envelope"></i></span>
                     <input type="email" id="email" name="email" value="<?php if(isset($_POST['email'])) {echo $_POST['email'];} ?>">
@@ -113,6 +113,20 @@ if(isset($_POST['sbt_register'])){
                     <label for="">Số điện thoại</label>
                 </div>
                 <div class="error"><?php echo (isset($errorPhone)) ? $errorPhone : "" ?></div>
+
+                <div class="input-box <?php echo (isset($errorPassword)) ? 'error_border' : '';?>">
+                    <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" id="password" name="password" value="<?php if(isset($_POST['password'])) {echo $_POST['password'];} ?>">
+                    <label for="">Mật khẩu </label>
+                </div>
+                <div class="error"><?php echo (isset($errorPassword)) ? $errorPassword : "" ?></div>
+
+                <div class="input-box <?php echo (isset($errorPassword)) ? 'error_border' : '';?>">
+                    <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" id="password" name="re_password" value="<?php if(isset($_POST['re_password'])) {echo $_POST['re_password'];} ?>">
+                    <label for="">Nhập lại mật khẩu </label>
+                </div>
+                <div class="error"><?php echo (isset($errorErPassword)) ? $errorErPassword : "" ?></div>
 
                 <button type="submit" name="sbt_register">Đăng ký</button>
                 

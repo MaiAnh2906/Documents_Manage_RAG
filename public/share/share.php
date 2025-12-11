@@ -77,21 +77,21 @@ if (isset($_POST['btnShare'])) {
                 $stmt->execute();
 
                 // chia sẻ all file con trong folder
-                $sql = "SELECT file_id FROM files WHERE folder_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $target_id);
-                $stmt->execute();
-                $files = $stmt->get_result();
+                // $sql = "SELECT file_id FROM files WHERE folder_id = ?";
+                // $stmt = $conn->prepare($sql);
+                // $stmt->bind_param("i", $target_id);
+                // $stmt->execute();
+                // $files = $stmt->get_result();
 
-                while ($f = $files->fetch_assoc()) {
-                    $fid = $f['file_id'];
-                    $sql2 = "INSERT INTO shares (file_id, user_id, permission)
-                             VALUES (?, ?, ?)
-                             ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                    $stmt2 = $conn->prepare($sql2);
-                    $stmt2->bind_param("iis", $fid, $share_to, $permission);
-                    $stmt2->execute();
-                }
+                // while ($f = $files->fetch_assoc()) {
+                //     $fid = $f['file_id'];
+                //     $sql2 = "INSERT INTO shares (file_id, user_id, permission)
+                //              VALUES (?, ?, ?)
+                //              ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
+                //     $stmt2 = $conn->prepare($sql2);
+                //     $stmt2->bind_param("iis", $fid, $share_to, $permission);
+                //     $stmt2->execute();
+                // }
             }
 
             $success = "Chia sẻ thành công!";
