@@ -10,46 +10,39 @@ if (!isset($_SESSION['login'])) {
 $user_id = $_SESSION['login']['user_id'];
 $role = $_SESSION['login']['role'];
 
-$folder_name = "";
-
-// if (isset($_POST['cancel'])) {
-//     if ($role == 1) {
-//         header('Location: admin_index.php');
-//     } else {
-//         header('Location: index.php');
-//     }
-//     exit();
-// }
-
+if (isset($_POST['cancel'])) {
+    header("Location: index.php");
+    exit();
+}
 if (isset($_POST['create'])) {
     $folder_name = trim($_POST['folder_name'] ?? "");
 
     if ($folder_name == "") {
         $error = "Vui lòng nhập tên thư mục!";
     } else {
-        // tao fd vat ly tren ser
-        $path = "uploads/$user_id/";
-
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
-
-        $folder_path = $path . $folder_name;
-
-        // them so neu da ton tai de tranh trung
-        $original = $folder_path;
+        $original_name = $folder_name;
         $i = 1;
-        while (is_dir($folder_path)) {
-            $folder_path = $original . " ($i)";
+
+        $sql = "SELECT id FROM folders 
+                WHERE user_id='$user_id' 
+                AND name='$folder_name'";
+        $check = mysqli_query($conn, $sql);
+
+        // Them so khi trung 
+        while (mysqli_num_rows($check) > 0) {
+            $folder_name = $original_name . " ($i)";
+            $sql = "SELECT id FROM folders 
+                    WHERE user_id='$user_id' 
+                    AND name='$folder_name'";
+            $check = mysqli_query($conn, $sql);
             $i++;
         }
 
-        mkdir($folder_path, 0777, true);
-
-        $final_folder_name = basename($folder_path);
-        $sql = "INSERT INTO folders (user_id, name, created_at) VALUES ('$user_id', '$final_folder_name', NOW())";
+        $sql = "INSERT INTO folders (user_id, name, created_at)
+                VALUES ('$user_id', '$folder_name', NOW())";
         mysqli_query($conn, $sql);
-        header('Location: index.php?success=1');
+
+        header("Location: index.php?success=1");
         exit();
     }
 }
