@@ -26,7 +26,7 @@ if(isset($_GET['file_id'])){
 if($type == "file"){
     $sql = "UPDATE files 
     LEFT JOIN shares ON files.file_id = shares.file_id
-    SET files.is_deleted = 1, files.deleted_at = NOW(), shares.is_deteled = 1
+    SET files.is_deleted = 1, files.deleted_at = NOW(), shares.is_deleted = 1
     WHERE files.file_id = $id";
     mysqli_query($conn, $sql);
 

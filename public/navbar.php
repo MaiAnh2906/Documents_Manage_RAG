@@ -169,7 +169,7 @@ $role = $_SESSION['login']['role'];
     <nav class="navbar navbar-expand-sm fixed-top bg-white shadow-sm">
         <div class="container-fluid justify-content-between">
             <!-- Logo -->
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="index.php">
                 <img src="assets/images/logo_drive.png" alt="" width="30" height="30">
             </a> <span><img src="assets/images/doggle_drive.png" alt="" width="100" height="30"></span>
             <!-- Search -->
@@ -192,11 +192,6 @@ $role = $_SESSION['login']['role'];
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="profile.php">Trang cá nhân</a></li>
-                    <li><a class="dropdown-item" href="settings.php">Cài đặt</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
                 </ul>
             </div>
@@ -233,14 +228,14 @@ $role = $_SESSION['login']['role'];
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
+                        <a href="my_drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
                     </button>
                 </li>
 
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-people"></i> Được chia sẻ với tôi</a>
+                        <a href="shared_with_me.php" class="nav-link"><i class="bi bi-people"></i> Được chia sẻ với tôi</a>
                     </button>
                 </li>
 
@@ -274,14 +269,14 @@ $role = $_SESSION['login']['role'];
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-trash"></i> Trash</a>
+                        <a href="trash.php" class="nav-link"><i class="bi bi-trash"></i> Trash</a>
                     </button>
                 </li>
 
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-database"></i> Bộ nhớ</a>
+                        <a href="storage.php" class="nav-link"><i class="bi bi-database"></i> Bộ nhớ</a>
                     </button>
                 </li>
 
