@@ -9,9 +9,9 @@ $user_id = $_SESSION['login']['user_id'];
 $username = $_SESSION['login']['username'];
 $role = $_SESSION['login']['role'];
 
-// xd laoij chia sẻ là file/folder
+// xác định loại chia sẻ file/folder
 $type = "";
-$target_id = ""; /// đối tượng đc shaer
+$target_id = ""; 
 
 if (isset($_GET['file_id'])) {
     $type = "file";
@@ -33,10 +33,8 @@ if (isset($_POST['btnShare'])) {
     $target_id = $_POST['target_id'];
 
     // tìm userid nhận
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $u = $stmt->get_result();
+    $sql = "SELECT user_id FROM users WHERE email = '$email'";
+    $u = $conn->query($sql);
 
     if ($u->num_rows == 0) {
         $error = "Email chưa được đăng ký tài khoản.";
@@ -45,86 +43,37 @@ if (isset($_POST['btnShare'])) {
 
         // kiểm tra quyền sở hữu
         if ($type == "file") {
-            $sql = "SELECT user_id FROM files WHERE file_id = ?";
+            $sql = "SELECT user_id FROM files WHERE file_id = $target_id";
         } else {
-            $sql = "SELECT user_id FROM folders WHERE folder_id = ?";
+            $sql = "SELECT user_id FROM folders WHERE folder_id = $target_id";
         }
+        $kq = $conn->query($sql);
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $target_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $owner = $res->fetch_assoc()['user_id'];
-
-        if ($owner != $user_id) {
-            $error = "Bạn không phải chủ sở hữu!";
+        if ($kq->num_rows == 0) {
+            $error = "Tệp/Thư mục không tồn tại.";
         } else {
-
-            /* --- LUU CHIA SE --- */
-            if ($type == "file") {
-                $sql = "INSERT INTO shares (file_id, owner_id, target_user_id, permission)
-                        VALUES (?, ?, ?, ?)
-                        ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iiis", $target_id, $user_id, $share_to, $permission);
-                $stmt->execute();
+            $owner = $kq->fetch_assoc()['user_id'];
+            
+            if ($owner != $user_id) {
+                $error = "Bạn không phải chủ sở hữu!";
             } else {
-                $sql = "INSERT INTO shares (folder_id, owner_id, target_user_id, permission)
-                        VALUES (?, ?, ?, ?)
-                        ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iiis", $target_id, $user_id, $share_to, $permission);
-                $stmt->execute();
-
-                // chia sẻ all file con trong folder
-                // $sql = "SELECT file_id FROM files WHERE folder_id = ?";
-                // $stmt = $conn->prepare($sql);
-                // $stmt->bind_param("i", $target_id);
-                // $stmt->execute();
-                // $files = $stmt->get_result();
-
-                // while ($f = $files->fetch_assoc()) {
-                //     $fid = $f['file_id'];
-                //     $sql2 = "INSERT INTO shares (file_id, user_id, permission)
-                //              VALUES (?, ?, ?)
-                //              ON DUPLICATE KEY UPDATE permission = VALUES(permission)";
-                //     $stmt2 = $conn->prepare($sql2);
-                //     $stmt2->bind_param("iis", $fid, $share_to, $permission);
-                //     $stmt2->execute();
-                // }
+                // Lưu vào bảng se
+                if ($type == "file") {
+                    $sql = "INSERT INTO shares (file_id, owner_id, target_user_id, permission)
+                            VALUES ($target_id, $user_id, $share_to, '$permission')
+                            ON DUPLICATE KEY UPDATE permission='$permission'";
+                    $conn->query($sql);
+                } else {
+                    $sql = "INSERT INTO shares (folder_id, owner_id, target_user_id, permission)
+                            VALUES ($target_id, $user_id, $share_to, '$permission')
+                            ON DUPLICATE KEY UPDATE permission='$permission'";
+                    $conn->query($sql);
+                }
+                $success = "Chia sẻ thành công!";
             }
-
-            $success = "Chia sẻ thành công!";
-        }
+        }     
     }
 }
-
-
-
-// Lấy user_id từ email người nhận // ko an toan
-//     $sql = "SELECT user_id FROM users WHERE email = '$email'";
-//     $result = $conn->query($sql);
-
-//     if ($result->num_rows == 0) {
-//         $error = "Người dùng với email này không tồn tại.";
-//     } else {
-//         $row = $result->fetch_assoc();
-//         $share_user_id = $row['user_id'];
-
-//         // Thêm bản ghi chia sẻ
-//         if ($type == "file") {
-//             $sql = "INSERT INTO shares (file_id, user_id, permission) VALUES ($target_id, $share_user_id, '$permission')";
-//         } else {
-//             $sql = "INSERT INTO shares (folder_id, user_id, permission) VALUES ($target_id, $share_user_id, '$permission')";
-//         }
-
-//         if ($conn->query($sql) === TRUE) {
-//             $success = "Chia sẻ thành công với $email.";
-//         } else {
-//             $error = "Lỗi khi chia sẻ: " . $conn->error;
-//         }
-//     }
-// }
 
 ?>
 <!DOCTYPE html>

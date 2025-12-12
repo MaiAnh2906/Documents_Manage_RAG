@@ -7,7 +7,7 @@ if (!isset($_SESSION['login'])) {
 }
 
 define('ALLOW_ACCESS', true);
-$pageTitle = "My Drive";
+$pageTitle = "Drive của tôi";
 include "navbar.php";
 
 $user_id = $_SESSION['login']['user_id'];

@@ -7,7 +7,7 @@ if (!isset($_SESSION['login'])) {
 }
 
 define('ALLOW_ACCESS', true);
-$pageTitle = "My Drive";
+$pageTitle = "Tìm kiếm";
 include "navbar.php";
 
 $user_id = $_SESSION['login']['user_id'];
@@ -110,7 +110,11 @@ $keyword = isset($_GET['search']) ? trim($_GET['search']) : '';
                 echo "</div>";
                 echo "</div>";
             } else {
-                echo "<p class='text-red-600'>Không tìm thấy file nào!</p>";
+                echo "
+                    <div class='flex flex-col items-center justify-center h-[70vh] text-center'>
+                        <img src='assets/images/search.jpg' class='w-60 h-60 object-contain mb-6 opacity-90'>
+                        <p class='text-lg font-medium text-gray-600'>Không có tệp hoặc thư mục nào</p>
+                    </div>";
             }
         } else {
             echo "<p class='text-gray-600'>Không có từ khóa tìm kiếm.</p>";

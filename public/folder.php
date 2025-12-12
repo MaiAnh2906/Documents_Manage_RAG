@@ -171,18 +171,21 @@ if(isset($_POST['btn_stop'])){
             foreach ($participants as $participant) {
                 echo '<li class="member-item p-2 rounded">👤 ' . $participant['permission']. ' — ' . $participant['username'] . ' </li>';
             }
-        ?>
-        
+        ?>       
     </ul>
 
     <?php if ($isOwner) { ?>
-    <a href="share/share.php" class="underline text-sm">Quản lý thành viên</a>
-<?php } ?>
+    <a href="member_management.php?folder_id=<?= $folder_id ?>" class="underline text-sm">Quản lý thành viên</a>
+    <?php } ?>
+    <a class="dropdown-item" href="#" onclick="openFolderDetail(<?= $folder_id ?>)">
+    <i class="bi bi-eye"></i> Chi tiết dự án
+    </a>
+
 
 </aside>
 
 <!-- MAIN CONTENT -->
-<main class="ml-[260px] p-8">
+<div class="ml-[260px] p-8">
 
     <!-- TOP BAR -->
     <div class="flex justify-between items-center mb-6">
@@ -280,7 +283,8 @@ if(isset($_POST['btn_stop'])){
         ?>
 
     </section>
-</main>
+</div>
+<?php include "detail_folder.php"; ?>
 
 </body>
 </html>

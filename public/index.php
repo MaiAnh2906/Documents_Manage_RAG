@@ -9,6 +9,8 @@ if (!isset($_SESSION['login'])) {
 define('ALLOW_ACCESS', true);
 $pageTitle = "Trang chủ";
 include "navbar.php";
+include "detail_folder.php";
+
 
 $user_id = $_SESSION['login']['user_id'];
 $username = $_SESSION['login']['username'];
@@ -114,9 +116,10 @@ $countFile = 0;
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item flex items-center gap-2" href="#">
-                                            <i class="bi bi-eye"></i> Chi tiết
-                                        </a>
+                                        <a class="dropdown-item" href="#" onclick="openFolderDetail(<?= $row['folder_id'] ?>)">
+    <i class="bi bi-eye"></i> Chi tiết
+</a>
+
                                     </li>
                                     <li>
                                         <a class="dropdown-item flex items-center gap-2" href="#">
