@@ -10,38 +10,47 @@ if(isset($_POST['sbt_register'])){
     $passwordMd5 = md5($password);
 
 
-    if($name == "" || $password == "" || $email == "" || $phone_number == ""){
+    $valid = true;
         if(empty($_POST['name'])){
+            $valid = false;
             $errorName = "*Vui lòng nhập họ và tên!";
         }
 
         if(empty($_POST['password'])){
+            $valid = false;
             $errorPassword = "*Vui lòng nhập mật khẩu!";
-        }elseif(strlen($password) < 8){
-            $errorPassword = "*Vui lòng nhập lớn hơn 8 kí tự!";
+        }elseif(strlen($password) < 6){
+            $valid = false;
+            $errorPassword = "*Vui lòng nhập lớn hơn 6 kí tự!";
         }
 
         if(empty($_POST['email'])){
+            $valid = false;
             $errorEmail = "*Vui lòng nhập địa chỉ email!";
         }
         elseif(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
+            $valid = false;
             $errorEmail = "*Vui lòng nhập đúng định dạng email!";
         }
         
         if(empty($_POST['phone_number'])){
+            $valid = false;
             $errorPhone = "*Vui lòng nhập số điện thoại!";
         }
         elseif(strlen($_POST['phone_number']) != 10 || !is_numeric($_POST['phone_number']) || $_POST['phone_number'][0] != 0){
+            $valid = false;
             $errorPhone = "*Vui lòng nhập đúng định dạng số điện thoại!";
         }
 
         if(empty($_POST['re_password'])){
+            $valid = false;
             $errorErPassword = "Vui lòng nhập lại mật khẩu";
         }elseif($password != $re_password){
+            $valid = false;
             $errorErPassword = "Mật khẩu không trùng khớp";
         }
         
-    }else{
+    if($valid){
         $select = "SELECT * FROM users WHERE email = '$email'";
         $result = mysqli_query($conn, $select);
         if(mysqli_num_rows($result) > 0){
@@ -51,7 +60,6 @@ if(isset($_POST['sbt_register'])){
             mysqli_query($conn, $insert);
             echo "<script>alert('Đăng kí thành công!');</script>";
         }
-        
     }
     
     

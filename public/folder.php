@@ -54,16 +54,21 @@ $canAdd = ($isOwner || ($permission == 'contributor') || ($permission == 'operat
 if(isset($_GET['delete_content_id'])){
     $delete_ct = $_GET['delete_content_id'];
 
-    $sql = "SELECT * FROM contents WHERE content_id = $delete_ct";
+    $sql = "SELECT * FROM files 
+        WHERE content_id = $delete_ct AND folder_id = $folder_id";
     $kq = mysqli_query($conn, $sql);
-    $r = mysqli_fetch_assoc($kq);
-    $path = $r['file_path'];
-    if(file_exists($path)){
-        unlink($path);
+    $row_file = mysqli_fetch_assoc($kq);
+
+    if(file_exists($row_file['path'])){
+        unlink($row_file['path']);
     }
 
     $sql = "DELETE FROM contents WHERE content_id = $delete_ct";
     mysqli_query($conn, $sql);
+
+    $sql_delete = "DELETE FROM files WHERE content_id = $delete_ct AND folder_id = $folder_id";
+    mysqli_query($conn, $sql_delete);
+
     header("Location: folder.php?folder_id=$folder_id");
     exit();
 }
@@ -76,8 +81,35 @@ if(isset($_POST['btn_stop'])){
     $sql = "UPDATE shares SET permission = 'viewer' WHERE folder_id = $folder_id";
     mysqli_query($conn, $sql);
     
+    header("Location: folder.php?folder_id=$folder_id");
 }
 
+if(isset($_POST['btn_start'])){
+    $sql = "UPDATE folders SET status = 1 WHERE folder_id = $folder_id";
+    mysqli_query($conn, $sql);
+
+    header("Location: folder.php?folder_id=$folder_id");
+}
+
+if(isset($_GET['approved_id'])){
+    $content_id = $_GET['approved_id'];
+    $sql = "UPDATE contents SET status = 'approved' WHERE  content_id = $content_id";
+    mysqli_query($conn, $sql);
+}
+
+if(isset($_GET['rejected_id'])){
+    $content_id = $_GET['rejected_id'];
+    $sql = "UPDATE contents SET status = 'rejected' WHERE  content_id = $content_id";
+    mysqli_query($conn, $sql);
+}
+
+if(isset($_POST['btn_comment'])){
+    $content_id = $_POST['content_id'];
+    $comment_text = $_POST['comment_text'];
+
+    $sql = "INSERT INTO comments (content_id, folder_id, user_id, comment_text) VALUES ($content_id, $folder_id, $user_id, '$comment_text')";
+    mysqli_query($conn, $sql);
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -87,6 +119,7 @@ if(isset($_POST['btn_stop'])){
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <title>Bảng làm việc dự án</title>
 
     <style>
@@ -146,9 +179,16 @@ if(isset($_POST['btn_stop'])){
     </p>
 
     <?php if ($isOwner) { ?>
-    <form method="post">
-    <input type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg mb-3" name="btn_stop" onclick="return confirm('Bạn có chắc muốn ngừng dự án không?');" value="Ngừng dự án">
-    </form>
+        <form method="post">
+        <?php if ($folder['status'] == 1) { ?>
+                <input type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg mb-3" name="btn_stop" onclick="return confirm('Bạn có chắc muốn ngừng dự án không?');" value="Ngừng dự án">
+                
+        <?php }else{ ?>
+                <input type="submit" name="btn_start" value="Khởi động dự án"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg mb-3 
+                    font-semibold shadow-sm hover:shadow transition" />
+        <?php } ?>
+        </form>
     <?php } ?>
 
     <a 
@@ -209,6 +249,11 @@ if(isset($_POST['btn_stop'])){
                     ORDER BY contents.content_id DESC";
             $kq = mysqli_query($conn, $sql);
             while($row = mysqli_fetch_assoc($kq)){
+                $content_id = $row['content_id'];
+                $sql_file = "SELECT * FROM files 
+                        WHERE content_id = $content_id AND folder_id = $folder_id";
+                $kq_file = mysqli_query($conn, $sql_file);
+                $row_file = mysqli_fetch_assoc($kq_file);
         ?>
             <div class="border p-4 rounded-lg mb-4 hover:bg-gray-50 transition">
                 <div class="flex justify-between">
@@ -233,16 +278,16 @@ if(isset($_POST['btn_stop'])){
                     </div>
 
                     <div class="space-x-3">
-                        <?php if($isOwner && (!$row['status'] == "approved")){ ?> 
-                        <a href="?content_id=<?php echo $row['content_id']; ?>&status=approved&folder_id=<?php echo $folder_id; ?>" 
-                        class="text-green-600 font-semibold">
-                            Duyệt
-                        </a>
+                        <?php if($isOwner && $row['status'] == "pending"){ ?> 
+                            <a href="?approved_id=<?php echo $row['content_id']; ?>&status=approved&folder_id=<?php echo $folder_id; ?>" 
+                            class="text-green-600 font-semibold">
+                                Duyệt
+                            </a>
 
-                        <a href="?content_id=<?php echo $row['content_id']; ?>&status=rejected&folder_id=<?php echo $folder_id; ?>" 
-                        class="text-yellow-600 font-semibold">
-                            Từ chối
-                        </a>
+                            <a href="?rejected_id=<?php echo $row['content_id']; ?>&status=rejected&folder_id=<?php echo $folder_id; ?>" 
+                            class="text-yellow-600 font-semibold">
+                                Từ chối
+                            </a>
                         <?php } ?>
 
                         <a href="edit_content.php?folder_id=<?php echo $folder_id; ?>&content_id=<?php echo $row['content_id']; ?>" class="text-blue-600">Sửa</a>
@@ -256,27 +301,104 @@ if(isset($_POST['btn_stop'])){
                     <?php echo $row['content_text']; ?>
                 </p>
 
-                <?php if (!empty($row['file_path'])){ ?>
+                <?php if (!empty($row_file['path'])){ ?>
                     <div class="mt-4 p-3 border border-gray-300 rounded-lg bg-gray-50 flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <i class="bi bi-file-earmark-text text-blue-600 text-xl"></i>
-
                             <div>
-                                <p class="font-medium text-gray-700"><?php echo $row['file_name']; ?></p>
+                                <p class="font-medium text-gray-700"><?php echo $row_file['name']; ?></p>
                                 <p class="text-xs text-gray-500">
-                                    <?php echo strtoupper($row['file_type']); ?> —
-                                    <?php echo round($row['file_size'] / 1024, 1); ?> KB
+                                    <?php echo strtoupper($row_file['type']); ?> —
+                                    <?php echo round($row_file['size'] / 1024, 1); ?> KB
                                 </p>
                             </div>
                         </div>
 
-                        <a href="<?php echo $row['file_path']; ?>" 
-                        download
-                        class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">
-                            Tải xuống
-                        </a>
+
+                        <div class="col-span-1 flex space-x-2 justify-end text-gray-400 px-3">
+                            <div class="dropdown">
+                                <i class="bi bi-three-dots-vertical cursor-pointer hover:text-blue-500 text-lg"
+                                    data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                <ul class="dropdown-menu shadow-lg rounded-xl">
+                                    <li>
+                                        <a class="dropdown-item flex items-center gap-2" href="detail_file.php?id=<?php echo $row_file['file_id']; ?>">
+                                            <i class="bi bi-eye"></i> Chi tiết
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item flex items-center gap-2" href="download_file.php?id=<?php echo $row_file['file_id']; ?>">
+                                            <i class="bi bi-download"></i> Tải xuống
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 <?php } ?>
+
+
+                <div class="mt-6 border-t pt-4">
+                    <h4 class="font-semibold text-gray-700 mb-3 text-lg">Bình luận</h4>
+
+                    <form method="POST" class="mb-4">
+                        <input type="hidden" name="content_id" value="<?php echo $row['content_id']; ?>">
+                        
+                        <textarea 
+                            name="comment_text" rows="2" 
+                            class="w-full border rounded-lg p-2 text-sm focus:ring focus:ring-blue-200 focus:outline-none"
+                            placeholder="Viết bình luận của bạn..."
+                            required
+                        ></textarea>
+
+                        <br>
+                        <input type="submit" name="btn_comment"
+                            class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm" value="Gửi bình luận"
+                        > 
+                    </form>
+
+                    <div class="space-y-4">
+                    <?php 
+                        $content_id = $row['content_id'];
+                        $sql_comment = "SELECT comments.*, users.username
+                                FROM comments
+                                JOIN users ON comments.user_id = users.user_id
+                                WHERE comments.content_id = $content_id AND comments.folder_id = $folder_id";
+                        $kq_comment = mysqli_query($conn, $sql_comment);
+                        while ($row_comment = mysqli_fetch_assoc($kq_comment)){
+                            $username = $row_comment['username'];    
+                        ?>
+                        <div class="flex gap-3 items-start p-3 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 transition">
+                            <img class="rounded-circle border me-2" src="https://placehold.co/24x24/dc2626/ffffff?text=<?php echo mb_substr($username, 0, 1, "UTF-8"); ?>" class="w-10 h-10 rounded-full shadow">
+
+                            <div class="flex-1">
+                                    <p class="font-semibold text-sm text-gray-800">
+                                        <?php echo $row_comment['username']; ?>
+                                    </p>
+                                    <p class="text-gray-700 text-sm mt-1">
+                                        <?php echo $row_comment['comment_text']; ?>
+                                    </p>
+                            </div>
+                            <div class="flex items-center gap-3 mt-1 ml-1">
+                                <span class="text-xs text-gray-400">
+                                    <?php echo $row_comment['created_at']; ?>
+                                </span>
+
+                                <?php if ($row_comment['user_id'] == $user_id) { ?>
+                                <a href="delete_comment.php?id=<?php echo $row_comment['comment_id']; ?>&folder_id=<?php echo $folder_id; ?>"
+                                    class="text-xs text-red-500 hover:underline"
+                                    onclick="return confirm('Xóa bình luận này?')">
+                                    Xóa
+                                </a>
+                                <?php } ?>
+                            </div>
+
+                        </div>
+                        <?php
+                        }
+                    ?>
+                        
+                    </div>
+                </div>
+
             </div>
         <?php
             }
