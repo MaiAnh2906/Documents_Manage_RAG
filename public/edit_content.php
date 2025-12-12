@@ -55,6 +55,13 @@ $sql = "SELECT * FROM contents WHERE content_id = $content_id";
 $kq = mysqli_query($conn, $sql);
 $row = mysqli_fetch_assoc($kq);
 
+
+$sql_file = "SELECT * FROM files 
+        WHERE content_id = $content_id AND folder_id = $folder_id";
+$kq_file = mysqli_query($conn, $sql_file);
+$row_file = mysqli_fetch_assoc($kq_file);
+
+
 $status = "";
 if($isOwner){
     $status = "approved";
@@ -64,12 +71,26 @@ if($isOwner){
 if(isset($_POST['btn_luu'])){
     $title = $_POST['tieu_de'];
     $content_text = $_POST['noi_dung'];
-    if($_FILES['file_upload']['error'] == 4){
-        $sql = "UPDATE contents SET folder_id = $folder_id, user_id = $user_id, title = '$title',
+
+    $sql = "UPDATE contents SET folder_id = $folder_id, user_id = $user_id, title = '$title',
                 content_text = '$content_text', status = '$status', updated_at = NOW() WHERE content_id = $content_id";
-        mysqli_query($conn, $sql);
+    mysqli_query($conn, $sql);
+    if($_FILES['file_upload']['error'] == 4){
         header("Location: folder.php?folder_id=$folder_id");
     }elseif(isset($_FILES['file_upload']) && $_FILES['file_upload']['error'] == 0){
+
+        $sql = "SELECT * FROM files 
+                    WHERE content_id = $content_id AND folder_id = $folder_id";
+        $kq = mysqli_query($conn, $sql);
+        $row_file = mysqli_fetch_assoc($kq);
+
+        if(file_exists($row_file['path'])){
+            unlink($row_file['path']);
+        }
+
+        $sql_delete = "DELETE FROM files WHERE content_id = $content_id AND folder_id = $folder_id";
+        mysqli_query($conn, $sql_delete);
+
         $target = "uploads/$user_id/";
         $filename = $_FILES['file_upload']['name'];
         
@@ -82,13 +103,9 @@ if(isset($_POST['btn_luu'])){
         $path = $target . $newname;
         $size = $_FILES['file_upload']['size'];
 
-        if(file_exists($row['file_path'])){
-            unlink($row['file_path']);
-        }
-
         move_uploaded_file($_FILES['file_upload']['tmp_name'], $path);
-        $sql = "UPDATE contents SET folder_id = $folder_id, user_id = $user_id, title = '$title',
-                content_text = '$content_text', file_path = '$path', file_name = '$filename', file_type = '$type', file_size = $size, status = '$status', updated_at = NOW() WHERE content_id = $content_id";
+
+        $sql =  "INSERT INTO files (`user_id`, `folder_id`, `content_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, $folder_id, $content_id, '$filename', '$path', '$type', $size)";
         mysqli_query($conn, $sql);
         header("Location: folder.php?folder_id=$folder_id");
     }
@@ -223,7 +240,7 @@ if(isset($_POST['btn_luu'])){
 
         <!-- Upload file -->
          <?php
-            $fileName = !empty($row['file_name']) ? $row['file_name'] : 'Chọn tệp để tải lên...';
+            $fileName = !empty($row_file['name']) ? $row_file['name'] : 'Chọn tệp để tải lên...';
         ?>
         <div>
             <label class="block text-gray-700 font-medium mb-2">Tệp đính kèm</label>

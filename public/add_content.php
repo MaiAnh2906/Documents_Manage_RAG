@@ -79,9 +79,15 @@ if(isset($_POST['btn_luu'])){
         $size = $_FILES['file_upload']['size'];
 
         move_uploaded_file($_FILES['file_upload']['tmp_name'], $path);
-        $sql = "INSERT INTO contents (folder_id, user_id, title, content_text, file_path, file_name, file_type, file_size , status, created_at) VALUES 
-        ($folder_id, $user_id, '$title', '$content_text', '$path', '$filename', '$type', $size, '$status', NOW())";
+        $sql = "INSERT INTO contents (folder_id, user_id, title, content_text, status, created_at) VALUES 
+        ($folder_id, $user_id, '$title', '$content_text', '$status', NOW())";
         mysqli_query($conn, $sql);
+
+        $content_id = mysqli_insert_id($conn);
+        $sql =  "INSERT INTO files (`user_id`, `folder_id`, `content_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, $folder_id, $content_id, '$filename', '$path', '$type', $size)";
+        mysqli_query($conn, $sql);
+
+
         header("Location: folder.php?folder_id=$folder_id");
     }
 }

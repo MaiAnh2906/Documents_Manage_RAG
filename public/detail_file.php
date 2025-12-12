@@ -23,6 +23,15 @@ $size = $row['size'];
 $username = $row['username'];
 $created_at = $row['upload_date'];
 
+$participants = [];
+$sql = "SELECT users.username, shares.permission FROM shares 
+        JOIN users ON shares.target_user_id = users.user_id
+        WHERE shares.file_id = $id";
+$kq = mysqli_query($conn, $sql);
+while($row = mysqli_fetch_assoc($kq)){
+    $participants[] = $row;
+}
+
 define('ALLOW_ACCESS', true);
 $pageTitle = "Chi tiết file";
 include "navbar.php";
@@ -58,6 +67,23 @@ include "navbar.php";
                     <p><span class="font-semibold text-gray-700">Kích thước:</span> <?php echo $size; ?> KB</p>
                     <p><span class="font-semibold text-gray-700">Ngày tạo:</span> <?php echo $created_at; ?></p>
                     <p><span class="font-semibold text-gray-700">Chủ sở hữu:</span> <?php echo $username; ?></p>
+                    <p><span class="font-semibold text-gray-700">Người có quyền truy cập:</span>
+                        <?php
+                        echo $username . ", ";
+                        $count = count($participants);
+                        $i = 1;
+
+                        foreach ($participants as $value) {
+                            if ($i < $count) {
+                                echo $value['username'] . ", ";
+                            } else {
+                                echo $value['username'] . ".";
+                            }
+                            $i++;
+                        }
+                        ?>
+                    </p>
+
                 </div>
             </div>
 

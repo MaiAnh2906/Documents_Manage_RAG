@@ -511,12 +511,14 @@ $role = $_SESSION['login']['role'];
                         $sql = "SELECT * FROM files
                                 JOIN users ON files.user_id = users.user_id
                                 WHERE files.is_deleted = 0
+                                AND files.content_id IS NULL
                                 ORDER BY upload_date DESC";
                     } else {
                         $sql = "SELECT * FROM files
                                 JOIN users ON files.user_id = users.user_id
                                 WHERE files.user_id = $user_id
                                 AND files.is_deleted = 0
+                                AND files.content_id IS NULL
                                 ORDER BY upload_date DESC";
                     }
                     $kq = mysqli_query($conn, $sql);
