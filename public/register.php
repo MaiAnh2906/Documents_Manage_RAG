@@ -1,5 +1,12 @@
 <?php
+session_start();
 @include '../config/config.php';
+include("func/function.php");
+
+if (isset($_SESSION['login'])) {
+    header("Location: index.php");
+    exit();
+}
 
 if(isset($_POST['sbt_register'])){
     $name = $_POST['name'] ?? "";
@@ -58,6 +65,9 @@ if(isset($_POST['sbt_register'])){
         }else{
             $insert = "INSERT INTO users (username, password, email, phone_number) VALUES('$name', '$passwordMd5', '$email', '$phone_number')";
             mysqli_query($conn, $insert);
+            // log activity
+            $user_id = mysqli_insert_id($conn);
+            logActivity($conn, $user_id, "register", null, null, null, null, "Người dùng đăng ký tài khoản với email: $email");
             echo "<script>alert('Đăng kí thành công!');</script>";
         }
     }
@@ -74,9 +84,43 @@ if(isset($_POST['sbt_register'])){
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"> 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   </head>
-    <link rel="icon" href="../imgs/logo.png">
     <title>Đăng ký</title>
     <style>
+            body {
+        min-height: 100vh;
+        margin: 0;
+        background-image: url("assets/images/bg.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .container {
+        width: 420px;
+        padding: 30px 35px;
+        border-radius: 14px;
+
+        background: transparent;
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(10px);
+
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        text-align: center;
+    }
+
+    .infor-box {
+        background: transparent;
+    }
+
         .error{
             color: red;
             font-size: 13px;
@@ -91,12 +135,9 @@ if(isset($_POST['sbt_register'])){
     
 </head>
 <body>
-    <img src="../imgs/AoH.png" alt="" class="aoh-img">
     <div class="container">
-        <a href="../Tuyển sinh/Tuyển sinh.html"><img src="../imgs/logo.png" alt="" width="80px"></a>
-        <div class="hvah">HỌC VIỆN ANH HÙNG</div>
-        <div class="cttts">CỔNG THÔNG TIN TUYỂN SINH</div>
-
+        <img src="assets/images/doggle_drive.png" class="hvah" alt="">
+        <div class="cttts">HỆ THỐNG QUẢN LÝ TÀI NGUYÊN SỐ</div>
 
         <div class="infor-box">
             <form method="post">

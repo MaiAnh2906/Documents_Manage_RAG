@@ -1,6 +1,7 @@
 <?php
 include("../config/config.php");
 include("auto_clean.php");
+include("func/function.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -117,12 +118,12 @@ $countFile = 0;
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="#" onclick="openFolderDetail(<?= $row['folder_id'] ?>)">
-    <i class="bi bi-eye"></i> Chi tiết
-</a>
+                                            <i class="bi bi-eye"></i> Chi tiết
+                                        </a>
 
                                     </li>
                                     <li>
-                                        <a class="dropdown-item flex items-center gap-2" href="#">
+                                        <a class="dropdown-item flex items-center gap-2" href="edit_folder.php?folder_id=<?= $row['folder_id'] ?>">
                                             <i class="bi bi-pencil-square"></i> Chỉnh sửa
                                         </a>
                                     </li>
