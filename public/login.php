@@ -3,6 +3,11 @@ session_start();
 @include '../config/config.php';
 include("func/function.php");
 
+if (isset($_SESSION['login'])) {
+    header("Location: index.php");
+    exit();
+}
+
 if (isset($_POST['btn_login'])) {
     $email = $_POST['email'] ?? "";
     $password = $_POST['password'] ?? "";

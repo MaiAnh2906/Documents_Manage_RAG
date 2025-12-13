@@ -17,7 +17,7 @@ function logActivity($conn, $user_id, $action, $folder_id = null, $file_id = nul
 function actionLabel($action) {
     $action = strtolower($action);
     switch (true) {
-        case strpos($action, 'đăng nhập') !== false:
+        case strpos($action, 'login') !== false:
             return "<span class='badge bg-success text-white px-3 py-2 rounded-pill'>Đăng nhập</span>";
         case strpos($action, 'tạo dự án') !== false:
         case strpos($action, 'tạo folder') !== false:
