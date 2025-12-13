@@ -1,5 +1,6 @@
 <?php
 include("../../config/config.php");
+include("../func/function.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -98,6 +99,30 @@ if (isset($_POST['btnShare'])) {
                                 VALUES ($target_id, $user_id, $share_to, '$permission')";
                     }
                     $conn->query($sql);
+                    // lưu activity
+                    if ($type == "file") {
+                        logActivity(
+                            $conn,
+                            $user_id,
+                            "share_file",
+                            null,
+                            $target_id,
+                            null,
+                            null,
+                            "Chia sẻ file cho $email với quyền $permission"
+                        );
+                    } else {
+                        logActivity(
+                            $conn,
+                            $user_id,
+                            "share_folder",
+                            $target_id,
+                            null,
+                            null,
+                            null,
+                            "Chia sẻ folder cho $email với quyền $permission"
+                        );
+                    }
                     $success = "Chia sẻ thành công!";
                 }
             }
@@ -110,6 +135,37 @@ if (isset($_POST['btnUpdate'])) {
     $share_id = $_POST['share_id'];
 
     $conn->query("UPDATE shares SET permission='$permission' WHERE share_id=$share_id");
+    // lưu activity
+    // lấy thông tin share để log cho rõ
+    $info = $conn->query("
+        SELECT file_id, folder_id 
+        FROM shares 
+        WHERE share_id = $share_id
+    ")->fetch_assoc();
+
+    if ($info['file_id']) {
+        logActivity(
+            $conn,
+            $user_id,
+            "update_share_permission",
+            null,
+            $info['file_id'],
+            null,
+            null,
+            "Cập nhật quyền chia sẻ file thành $permission"
+        );
+    } else {
+        logActivity(
+            $conn,
+            $user_id,
+            "update_share_permission",
+            $info['folder_id'],
+            null,
+            null,
+            null,
+            "Cập nhật quyền chia sẻ folder thành $permission"
+        );
+    }
     $success = "Cập nhật quyền thành công!";
     $edit_share_id = "";
     $edit_email = "";
@@ -422,7 +478,7 @@ if (isset($_POST['btnCancel'])) {
             <input type="email" name="email"
                 value="<?php echo $edit_email; ?>"
                 <?php echo ($edit_email != "") ? "readonly" : ""; ?>
-                 class="w-full border p-2 rounded mb-4">
+                class="w-full border p-2 rounded mb-4">
 
             <label>Quyền truy cập</label>
             <select name="permission" class="w-full border p-2 rounded mb-4">

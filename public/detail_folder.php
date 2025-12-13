@@ -64,7 +64,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == "1") {
 
 <div id="folderDetailPopup" class="popup-overlay">
     <div class="popup-box">
-        <h2 class="text-lg font-bold mb-3">Chi tiết Folder</h2>
+        <h2 class="text-lg font-bold mb-3">Chi tiết dự án</h2>
 
         <div id="folderDetailContent">
             Đang tải...

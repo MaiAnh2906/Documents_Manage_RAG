@@ -47,7 +47,7 @@ if (isset($_POST['create'])) {
 
         // lưu activity
         $folder_id = mysqli_insert_id($conn); 
-        logActivity($conn, $user_id, "Tạo folder", $folder_id, null, null, null, "Tên folder: $folder_name");
+        logActivity($conn, $user_id, "create", $folder_id, null, null, null, "Tạo dự án $folder_name");
 
         header("Location: index.php?success=1");
         exit();
