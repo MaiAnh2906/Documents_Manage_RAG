@@ -1,6 +1,7 @@
 <?php
 session_start();
 include("../config/config.php");
+include("func/function.php");
 
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -64,6 +65,8 @@ if (isset($_POST['update'])) {
         $sql = "UPDATE folders SET name='$folder_name', description='$description' 
                 WHERE folder_id = $folder_id AND user_id = '$user_id'";
         mysqli_query($conn, $sql);
+        // lưu activity
+        logActivity($conn, $user_id, "edit", $folder_id, null, null, null, "Sửa dự án $folder_name");
 
         header("Location: index.php?success=2"); 
         exit();
