@@ -17,7 +17,7 @@ if (isset($_POST['btn_login'])) {
 
         if (empty($_POST['password'])) {
             $errorPassword = "*Vui lòng nhập mật khẩu!";
-        } 
+        }
     } else {
         $select = "SELECT * FROM users WHERE email = '$email'";
         $result = mysqli_query($conn, $select);
@@ -26,19 +26,16 @@ if (isset($_POST['btn_login'])) {
             $row = mysqli_fetch_assoc($result);
             // $_SESSION['login'] = [];
 
-            if($row['status'] == 0){
+            if ($row['status'] == 0) {
                 header("Location: ../public/assets/images/403.php");
-            }
-
-            elseif ($passmd5 ==  $row['password']) { 
+            } elseif ($passmd5 ==  $row['password']) {
                 $_SESSION['login'] = $row;
                 $role = $_SESSION['login']['role'];
                 // lưu activity
                 $user_id = $_SESSION['login']['user_id'];
-                logActivity($conn, $user_id, "Đăng nhập");
+                logActivity($conn, $user_id, "login", null, null, null, null, "Người dùng đăng nhập vào hệ thống");
                 header('Location: index.php');
                 exit();
-                
             } else {
                 echo "<script>alert('Mật khẩu không đúng!');</script>";
             }
@@ -52,35 +49,75 @@ if (isset($_POST['btn_login'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/css/gd.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  </head>
-    <link rel="icon" href="../imgs/logo.png">
-    <title>Đăng nhập</title>
-    <style>
-        .error{
-            color: red;
-            font-size: 13px;
-            margin: 5px 0px;
-        }
-        .error_border{
-            border: none;
-            border-bottom: 2px solid red;
-        }
-
-    </style>
 </head>
+<link rel="icon" href="../imgs/logo.png">
+<title>Đăng nhập</title>
+<style>
+    body {
+        min-height: 100vh;
+        margin: 0;
+
+        /* ẢNH NỀN */
+        background-image: url("assets/images/bg.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .container {
+        width: 420px;
+        padding: 30px 35px;
+        border-radius: 14px;
+
+        background: transparent;
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(10px);
+
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        text-align: center;
+    }
+
+    .infor-box {
+        background: transparent;
+    }
+
+
+
+    .error {
+        color: red;
+        font-size: 13px;
+        margin: 5px 0px;
+    }
+
+    .error_border {
+        border: none;
+        border-bottom: 2px solid red;
+    }
+</style>
+</head>
+
 <body>
-    <img src="../imgs/AoH.png" alt="" class="aoh-img">
 
     <div class="container">
-        <a href="../Tuyển sinh/Tuyển sinh.html"><img src="../imgs/logo.png" alt="" width="100px"></a>
-        <div class="hvah">HỌC VIỆN ANH HÙNG</div>
-        <div class="cttts">CỔNG THÔNG TIN TUYỂN SINH</div>
+        <!-- <div class="hvah">DOOGLE DRIVE</div> -->
+        <img src="assets/images/doggle_drive.png" class="hvah" alt="">
+        <div class="cttts">HỆ THỐNG QUẢN LÝ TÀI NGUYÊN SỐ</div>
 
 
         <div class="infor-box">
@@ -105,7 +142,7 @@ if (isset($_POST['btn_login'])) {
 
                 <!-- Btn -->
                 <button type="submit" name="btn_login">Đăng nhập</button>
-                
+
                 <hr>
                 <p>Chưa có tài khoản? <a href="./register.php">Đăng ký</a></p>
             </form>
@@ -115,4 +152,5 @@ if (isset($_POST['btn_login'])) {
 
     <script src="loglog.js"></script>
 </body>
+
 </html>
