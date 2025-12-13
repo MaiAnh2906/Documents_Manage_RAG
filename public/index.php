@@ -1,6 +1,7 @@
 <?php
 include("../config/config.php");
 include("auto_clean.php");
+include("func/function.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");

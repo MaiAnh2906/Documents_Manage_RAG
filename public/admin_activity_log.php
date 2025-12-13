@@ -33,35 +33,77 @@ $pageTitle = "Chỉnh sửa dự án";
 include "navbar.php";
 ?>
 <!-- MAIN CONTENT -->
-<div class="main-container">
-    <h3 class="mb-4">Lịch sử hoạt động (50 bản ghi gần nhất)</h3>
+<div class="main-container container-fluid px-4 py-4 bg-slate-100 min-vh-100">
 
-    <div class="table-responsive shadow rounded">
-        <table class="table table-striped table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Người dùng</th>
-                    <th>Hành động</th>
-                    <th>Chi tiết</th>
-                    <th>Thời gian</th>
+    <!-- HEADER -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="fw-semibold text-slate-800 mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history text-primary fs-4"></i>
+            Lịch sử hoạt động
+        </h3>
+        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
+            50 bản ghi gần nhất
+        </span>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <!-- TABLE HEADER -->
+            <thead class="table-light">
+                <tr class="text-uppercase small text-slate-600">
+                    <th class="py-3">Người dùng</th>
+                    <th class="py-3">Hành động</th>
+                    <th class="py-3">Chi tiết</th>
+                    <th class="py-3 text-nowrap">Thời gian</th>
                 </tr>
             </thead>
+
+            <!-- TABLE BODY -->
             <tbody>
                 <?php while ($row = mysqli_fetch_assoc($res)) : ?>
                     <tr>
+
+                        <!-- USER -->
                         <td>
-                            <strong><?= htmlspecialchars($row['username'] ?? '') ?></strong><br>
-                            <small class="text-muted"><?= htmlspecialchars($row['email'] ?? '') ?></small>
+                            <div class="fw-semibold text-slate-800">
+                                <?= htmlspecialchars($row['username'] ?? '') ?>
+                            </div>
+                            <div class="text-slate-500 text-sm">
+                                <?= htmlspecialchars($row['email'] ?? '') ?>
+                            </div>
                         </td>
-                        <td><?= actionLabel($row['action']) ?></td>
-                        <td><?= nl2br(htmlspecialchars($row['description'] ?? '')) ?></td>
-                        <td class="text-nowrap"><?= date('d/m/Y H:i:s', strtotime($row['created_at'])) ?></td>
+
+                        <!-- ACTION -->
+                        <td>
+                            <?= actionLabel($row['action']) ?>
+                        </td>
+
+                        <!-- DESCRIPTION -->
+                        <td class="text-slate-700 small">
+                            <?= nl2br(htmlspecialchars($row['description'] ?? '')) ?>
+                        </td>
+
+                        <!-- TIME -->
+                        <td class="text-nowrap text-slate-500 small">
+                            <?= date('d/m/Y H:i:s', strtotime($row['created_at'])) ?>
+                        </td>
+
                     </tr>
                 <?php endwhile; ?>
+
                 <?php if (mysqli_num_rows($res) === 0): ?>
-                    <tr><td colspan="4" class="text-center">Không có bản ghi hoạt động nào.</td></tr>
+                    <tr>
+                        <td colspan="4" class="text-center text-slate-400 py-5">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Không có bản ghi hoạt động nào
+                        </td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
+
         </table>
     </div>
 </div>

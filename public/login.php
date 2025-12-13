@@ -1,6 +1,7 @@
 <?php
 session_start();
 @include '../config/config.php';
+include("func/function.php");
 
 if (isset($_POST['btn_login'])) {
     $email = $_POST['email'] ?? "";
@@ -29,10 +30,12 @@ if (isset($_POST['btn_login'])) {
                 header("Location: ../public/assets/images/403.php");
             }
 
-            elseif ($passmd5 ==  $row['password']) {
-            
+            elseif ($passmd5 ==  $row['password']) { 
                 $_SESSION['login'] = $row;
                 $role = $_SESSION['login']['role'];
+                // lưu activity
+                $user_id = $_SESSION['login']['user_id'];
+                logActivity($conn, $user_id, "Đăng nhập");
                 header('Location: index.php');
                 exit();
                 
