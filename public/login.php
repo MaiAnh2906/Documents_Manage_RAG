@@ -63,8 +63,6 @@ if (isset($_POST['btn_login'])) {
     body {
         min-height: 100vh;
         margin: 0;
-
-        /* ẢNH NỀN */
         background-image: url("assets/images/bg.png");
         background-size: cover;
         background-position: center;
@@ -115,10 +113,8 @@ if (isset($_POST['btn_login'])) {
 <body>
 
     <div class="container">
-        <!-- <div class="hvah">DOOGLE DRIVE</div> -->
         <img src="assets/images/doggle_drive.png" class="hvah" alt="">
         <div class="cttts">HỆ THỐNG QUẢN LÝ TÀI NGUYÊN SỐ</div>
-
 
         <div class="infor-box">
             <form method="post">

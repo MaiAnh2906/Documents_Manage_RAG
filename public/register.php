@@ -77,6 +77,43 @@ if(isset($_POST['sbt_register'])){
     <link rel="icon" href="../imgs/logo.png">
     <title>Đăng ký</title>
     <style>
+            body {
+        min-height: 100vh;
+        margin: 0;
+
+        /* ẢNH NỀN */
+        background-image: url("assets/images/bg.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .container {
+        width: 420px;
+        padding: 30px 35px;
+        border-radius: 14px;
+
+        background: transparent;
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(10px);
+
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        text-align: center;
+    }
+
+    .infor-box {
+        background: transparent;
+    }
+
         .error{
             color: red;
             font-size: 13px;
@@ -91,12 +128,9 @@ if(isset($_POST['sbt_register'])){
     
 </head>
 <body>
-    <img src="../imgs/AoH.png" alt="" class="aoh-img">
     <div class="container">
-        <a href="../Tuyển sinh/Tuyển sinh.html"><img src="../imgs/logo.png" alt="" width="80px"></a>
-        <div class="hvah">HỌC VIỆN ANH HÙNG</div>
-        <div class="cttts">CỔNG THÔNG TIN TUYỂN SINH</div>
-
+        <img src="assets/images/doggle_drive.png" class="hvah" alt="">
+        <div class="cttts">HỆ THỐNG QUẢN LÝ TÀI NGUYÊN SỐ</div>
 
         <div class="infor-box">
             <form method="post">
