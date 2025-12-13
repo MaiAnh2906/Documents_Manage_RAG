@@ -131,7 +131,7 @@ if(isset($_POST['sbt_register'])){
 
                 <div class="input-box <?php echo (isset($errorPassword)) ? 'error_border' : '';?>">
                     <span class="icon"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" id="password" name="re_password" value="<?php if(isset($_POST['re_password'])) {echo $_POST['re_password'];} ?>">
+                    <input type="password" id="re_password" name="re_password" value="<?php if(isset($_POST['re_password'])) {echo $_POST['re_password'];} ?>">
                     <label for="">Nhập lại mật khẩu </label>
                 </div>
                 <div class="error"><?php echo (isset($errorErPassword)) ? $errorErPassword : "" ?></div>
