@@ -243,7 +243,7 @@ $role = $_SESSION['login']['role'];
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Recents</a>
+                        <a href="admin_dasboard.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản trị hệ thống</a>
                     </button>
                 </li>
                 <?php } ?>

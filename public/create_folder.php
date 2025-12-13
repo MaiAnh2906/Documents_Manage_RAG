@@ -1,6 +1,7 @@
 <?php
 session_start();
 include("../config/config.php");
+include("func/function.php");
 
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -44,6 +45,10 @@ if (isset($_POST['create'])) {
         VALUES ('$user_id', '$folder_name', '$description', NOW(), 0, 1)";
         mysqli_query($conn, $sql);
 
+        // lưu activity
+        $folder_id = mysqli_insert_id($conn); 
+        logActivity($conn, $user_id, "Tạo folder", $folder_id, null, null, null, "Tên folder: $folder_name");
+
         header("Location: index.php?success=1");
         exit();
     }
@@ -54,8 +59,8 @@ $pageTitle = "Tạo dự án mới";
 include "navbar.php";
 ?>
 <!-- MAIN CONTENT -->
-    <div class="main-container">
-        <h2>Tạo thư mục mới</h3>
+<div class="main-container">
+    <h2>Tạo thư mục mới</h3>
         <?php if (!empty($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
 
         <form action="" method="POST" class="mt-3" style="max-width: 400px;">
@@ -68,4 +73,4 @@ include "navbar.php";
             <button type="submit" name="create" class="btn btn-primary">Tạo</button>
             <button type="submit" name="cancel" class="btn btn-secondary">Hủy</button>
         </form>
-    </div>
+</div>
