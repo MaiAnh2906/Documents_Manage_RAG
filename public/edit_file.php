@@ -21,7 +21,9 @@ $kq = mysqli_query($conn, $sql);
 $row = mysqli_fetch_assoc($kq);
 $file_name = $row['name'];
 
-if (isset($_POST['btn_update'])) {
+$errorFile = "";
+
+if(isset($_POST['btn_update'])){
     $user_id = $_SESSION['login']['user_id'];
     $name = $_POST['filename'];
 
@@ -47,7 +49,6 @@ if (isset($_POST['btn_update'])) {
         $newname = uniqid("file_", true) . "." . $type;
         $path = $target . $newname;
         $size = $_FILES['fileInput']['size'];
-        move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
 
         $sql = "SELECT * FROM files WHERE file_id = $id";
         $kq = mysqli_query($conn, $sql);
@@ -55,8 +56,26 @@ if (isset($_POST['btn_update'])) {
         $old_path = $row['path'];
         unlink($old_path);
 
-        $sql = "UPDATE files SET `user_id`=$user_id, `name`='$filename', `path`='$path', `type`='$type', `size`=$size, `upload_date`=NOW() WHERE file_id = $id";
-        $kq = mysqli_query($conn, $sql);
+        $allowed_extensions = [
+            'pdf','doc','docx',
+            'xls','xlsx',
+            'ppt','pptx',
+            'txt',
+            'jpg','jpeg','png','gif','webp',
+            'zip','rar'
+        ];
+
+        if (!in_array($type, $allowed_extensions)) {
+            $errorFile = "Định dạng file không được phép!";
+        }elseif($size >= 10 * 1024 * 1024){
+            $errorFile = "File quá lớn, dung lượng tối đa là 10MB!";
+        }
+
+        if($errorFile == ""){
+            move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
+            $sql = "UPDATE files SET `user_id`=$user_id, `name`='$filename', `path`='$path', `type`='$type', `size`=$size, `upload_date`=NOW() WHERE file_id = $id";
+            $kq = mysqli_query($conn, $sql);
+        }
     }
 }
 
@@ -70,7 +89,13 @@ include "navbar.php";
         Edit Files
     </h2>
 
-    <form method="post" enctype="multipart/form-data" class="space-y-5">
+        <?php if (!empty($errorFile)) { ?>
+            <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-3">
+                <?php echo $errorFile; ?>
+            </div>
+        <?php } ?>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-5">
 
         <div>
             <label class="block font-medium text-gray-600 mb-1">Đổi tên file:</label>

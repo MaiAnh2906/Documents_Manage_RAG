@@ -57,10 +57,16 @@ if($isOwner){
 }else{
     $status = "pending";
 }
+
+$error = "";
 if(isset($_POST['btn_luu'])){
     $title = $_POST['tieu_de'];
     $content_text = $_POST['noi_dung'];
-    if($_FILES['file_upload']['error'] == 4){
+
+    if($title == "" || $content_text == ""){
+        $error = "Vui lòng nhập đầy đủ thông tin!";
+    }
+    elseif($_FILES['file_upload']['error'] == 4){
         $sql = "INSERT INTO contents (folder_id, user_id, title, content_text, status, created_at) VALUES 
         ($folder_id, $user_id, '$title', '$content_text', '$status', NOW())";
         mysqli_query($conn, $sql);
@@ -78,17 +84,36 @@ if(isset($_POST['btn_luu'])){
         $path = $target . $newname;
         $size = $_FILES['file_upload']['size'];
 
-        move_uploaded_file($_FILES['file_upload']['tmp_name'], $path);
-        $sql = "INSERT INTO contents (folder_id, user_id, title, content_text, status, created_at) VALUES 
-        ($folder_id, $user_id, '$title', '$content_text', '$status', NOW())";
-        mysqli_query($conn, $sql);
+        $allowed_extensions = [
+            'pdf','doc','docx',
+            'xls','xlsx',
+            'ppt','pptx',
+            'txt',
+            'jpg','jpeg','png','gif','webp',
+            'zip','rar'
+        ];
 
-        $content_id = mysqli_insert_id($conn);
-        $sql =  "INSERT INTO files (`user_id`, `folder_id`, `content_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, $folder_id, $content_id, '$filename', '$path', '$type', $size)";
-        mysqli_query($conn, $sql);
+        if (!in_array($type, $allowed_extensions)) {
+            $error = "Định dạng file không được phép!";
+        }elseif($size >= 10 * 1024 * 1024){
+            $error = "File quá lớn, dung lượng tối đa là 10MB!";
+        }
+
+        if($error == ""){
+
+            move_uploaded_file($_FILES['file_upload']['tmp_name'], $path);
+            $sql = "INSERT INTO contents (folder_id, user_id, title, content_text, status, created_at) VALUES 
+            ($folder_id, $user_id, '$title', '$content_text', '$status', NOW())";
+            mysqli_query($conn, $sql);
+
+            $content_id = mysqli_insert_id($conn);
+            $sql =  "INSERT INTO files (`user_id`, `folder_id`, `content_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, $folder_id, $content_id, '$filename', '$path', '$type', $size)";
+            mysqli_query($conn, $sql);
 
 
-        header("Location: folder.php?folder_id=$folder_id");
+            header("Location: folder.php?folder_id=$folder_id");
+        }
+        
     }
 }
 
@@ -191,6 +216,11 @@ if(isset($_POST['btn_luu'])){
     <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">
          Thêm nội dung mới
     </h2>
+    <?php if (!empty($error)) { ?>
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-3">
+            <?php echo $error; ?>
+        </div>
+    <?php } ?>
 
     <form action="" method="POST" enctype="multipart/form-data" class="space-y-5">
 

@@ -110,6 +110,12 @@ if(isset($_POST['btn_comment'])){
     $sql = "INSERT INTO comments (content_id, folder_id, user_id, comment_text) VALUES ($content_id, $folder_id, $user_id, '$comment_text')";
     mysqli_query($conn, $sql);
 }
+
+if(isset($_GET['comment_id'])){
+    $comment_id = $_GET['comment_id'];
+    $sql = "DELETE FROM comments WHERE comment_id = $comment_id";
+    mysqli_query($conn, $sql);
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -337,8 +343,9 @@ if(isset($_POST['btn_comment'])){
 
 
                 <div class="mt-6 border-t pt-4">
-                    <h4 class="font-semibold text-gray-700 mb-3 text-lg">Bình luận</h4>
+                    <h4 class="btnToggleComment font-semibold text-gray-700 mb-3 text-lg" style="cursor: pointer;">Bình luận</h4>
 
+                    <div id="commentSection" class="comment-section" style="display: none;">
                     <form method="POST" class="mb-4">
                         <input type="hidden" name="content_id" value="<?php echo $row['content_id']; ?>">
                         
@@ -382,8 +389,8 @@ if(isset($_POST['btn_comment'])){
                                     <?php echo $row_comment['created_at']; ?>
                                 </span>
 
-                                <?php if ($row_comment['user_id'] == $user_id) { ?>
-                                <a href="delete_comment.php?id=<?php echo $row_comment['comment_id']; ?>&folder_id=<?php echo $folder_id; ?>"
+                                <?php if ($row_comment['user_id'] == $user_id || $isOwner) { ?>
+                                <a href="?comment_id=<?php echo $row_comment['comment_id']; ?>&folder_id=<?php echo $folder_id; ?>"
                                     class="text-xs text-red-500 hover:underline"
                                     onclick="return confirm('Xóa bình luận này?')">
                                     Xóa
@@ -395,7 +402,7 @@ if(isset($_POST['btn_comment'])){
                         <?php
                         }
                     ?>
-                        
+                    </div>
                     </div>
                 </div>
 
@@ -407,6 +414,24 @@ if(isset($_POST['btn_comment'])){
     </section>
 </div>
 <?php include "detail_folder.php"; ?>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btnToggleComment").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            const commentSection = this.nextElementSibling;
+
+            if (commentSection.style.display === "none") {
+                commentSection.style.display = "block";
+                this.textContent = "Ẩn bình luận";
+            } else {
+                commentSection.style.display = "none";
+                this.textContent = "Bình luận";
+            }
+        });
+    });
+});
+</script>
+
 
 </body>
 </html>
