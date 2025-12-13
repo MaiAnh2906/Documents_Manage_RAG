@@ -1,5 +1,6 @@
 <?php
 include("../config/config.php");
+include("func/function.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -29,6 +30,8 @@ if($isFile){
     JOIN shares ON files.file_id = shares.file_id
     WHERE files.file_id = $file_id";
     mysqli_query($conn, $sql);
+    // lưu activity
+    logActivity($conn, $row['user_id'], "delete", null, $file_id, null, null, "Xóa vĩnh viễn tệp " . $row['name']);
 }
 if($isFolder){
     $folder_id = $row['folder_id'];
@@ -49,6 +52,8 @@ if($isFolder){
     LEFT JOIN shares ON folders.folder_id = shares.folder_id
     WHERE folders.folder_id = $folder_id";
     mysqli_query($conn, $sql);
+    // lưu activity
+    logActivity($conn, $row['user_id'], "delete", $folder_id, null, null, null, "Xóa vĩnh viễn dự án " . $row['name']);
 }
 
 $sql = "DELETE FROM recycle_bin WHERE id = $id";
