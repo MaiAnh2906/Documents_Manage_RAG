@@ -359,11 +359,6 @@ if (isset($_POST['btnCancel'])) {
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="profile.php">Trang cá nhân</a></li>
-                    <li><a class="dropdown-item" href="settings.php">Cài đặt</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     <li><a class="dropdown-item" href="../logout.php">Đăng xuất</a></li>
                 </ul>
             </div>
@@ -378,12 +373,11 @@ if (isset($_POST['btnCancel'])) {
                 <i class="bi bi-plus-lg me-2"></i> New
             </button>
             <ul class="dropdown-menu shadow-xl" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item flex items-center" href="create_folder.php"><i class="bi bi-folder me-2 text-yellow-600"></i> Thư mục mới</a></li>
+                <li><a class="dropdown-item flex items-center" href="../create_folder.php"><i class="bi bi-folder me-2 text-yellow-600"></i> Thư mục mới</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item flex items-center" href="upload.php"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
-                <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-folder-fill me-2 text-gray-500"></i> Tải thư mục lên</a></li>
+                <li><a class="dropdown-item flex items-center" href="../upload.php"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
             </ul>
         </div>
         <br>
@@ -400,14 +394,14 @@ if (isset($_POST['btnCancel'])) {
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="../drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
+                        <a href="../my_drive.php" class="nav-link"><i class="bi bi-cloud"></i> Drive của tôi</a>
                     </button>
                 </li>
 
                 <li
                     class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                     <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                        <a href="#" class="nav-link"><i class="bi bi-people"></i> Được chia sẻ với tôi</a>
+                        <a href="../shared_with_me.php" class="nav-link"><i class="bi bi-people"></i> Được chia sẻ với tôi</a>
                     </button>
                 </li>
 

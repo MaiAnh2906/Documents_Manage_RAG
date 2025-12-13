@@ -3,6 +3,7 @@
 use Dom\Mysql;
 
 include("../config/config.php");
+include("func/function.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -41,6 +42,9 @@ if($type == "file"){
 
     $sql = "INSERT INTO recycle_bin (file_id, user_id, deleted_at, expiry_date) VALUES ($id, $user_id, '$deleted_at', DATE_ADD(NOW(), INTERVAL $expireDays DAY))";
     mysqli_query($conn, $sql);
+
+    // lưu activity
+    logActivity($conn, $user_id, "delete", null, $id, null, null, "Chuyển tệp " . $row['name'] . " vào thùng rác");
 }
 
 if($type == "folder"){
@@ -58,6 +62,9 @@ if($type == "folder"){
 
     $sql = "INSERT INTO recycle_bin (folder_id, user_id, deleted_at, expiry_date) VALUES ($id, $user_id, NOW(), DATE_ADD(NOW(), INTERVAL $expireDays DAY))";
     mysqli_query($conn, $sql);
+
+    // lưu activity
+    logActivity($conn, $user_id, "delete", $id, null, null, null, "Chuyển dự án " . $row['name'] . " vào thùng rác");
 }
 
 header("Location: index.php");
