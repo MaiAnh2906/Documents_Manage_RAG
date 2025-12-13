@@ -1,0 +1,4 @@
+- [x] Move h2 for shared folders section inside the if (mysqli_num_rows($resSharedFolder) > 0) block
+- [x] Move h2 for folders section inside the if (mysqli_num_rows($result) > 0) block
+- [x] Move h2 for shared files section inside the if (mysqli_num_rows($resSharedFile) > 0) block
+- [x] Move h2 for all files section inside the if (mysqli_num_rows($kq) > 0) block

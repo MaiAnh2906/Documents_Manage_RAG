@@ -1,5 +1,4 @@
 <?php
-// ================== XỬ LÝ AJAX LẤY CHI TIẾT FOLDER ==================
 if (isset($_GET['ajax']) && $_GET['ajax'] == "1") {
 
     include("../config/config.php");
@@ -36,11 +35,11 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == "1") {
             )
         . "</p>
     ";
-    exit; // <--- RẤT QUAN TRỌNG
+    exit; 
 }
 ?>
 
-<!-- ================== POPUP CHI TIẾT FOLDER (DÙNG CHUNG) ================== -->
+<!-- popup -->
 <style>
 .popup-overlay {
     position: fixed;

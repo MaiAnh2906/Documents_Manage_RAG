@@ -117,8 +117,8 @@ $countFile = 0;
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="#" onclick="openFolderDetail(<?= $row['folder_id'] ?>)">
-    <i class="bi bi-eye"></i> Chi tiết
-</a>
+                                            <i class="bi bi-eye"></i> Chi tiết
+                                        </a>
 
                                     </li>
                                     <li>
