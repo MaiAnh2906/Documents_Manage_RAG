@@ -21,13 +21,9 @@ $kq = mysqli_query($conn, $sql);
 $row = mysqli_fetch_assoc($kq);
 $file_name = $row['name'];
 
-<<<<<<< HEAD
 $errorFile = "";
 
 if(isset($_POST['btn_update'])){
-=======
-if (isset($_POST['btn_update'])) {
->>>>>>> a1e387e40e1ff640a4d76566f72ee36c3f5df11f
     $user_id = $_SESSION['login']['user_id'];
     $name = $_POST['filename'];
 
@@ -93,7 +89,6 @@ include "navbar.php";
         Edit Files
     </h2>
 
-<<<<<<< HEAD
         <?php if (!empty($errorFile)) { ?>
             <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-3">
                 <?php echo $errorFile; ?>
@@ -101,9 +96,6 @@ include "navbar.php";
         <?php } ?>
 
         <form method="post" enctype="multipart/form-data" class="space-y-5">
-=======
-    <form method="post" enctype="multipart/form-data" class="space-y-5">
->>>>>>> a1e387e40e1ff640a4d76566f72ee36c3f5df11f
 
         <div>
             <label class="block font-medium text-gray-600 mb-1">Đổi tên file:</label>
