@@ -27,6 +27,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == "1") {
 
     echo "
         <p><b>Tên thư mục:</b> {$row['name']}</p>
+        <p><b>Mô tả:</b> " . (!empty($row['description']) ? htmlspecialchars($row['description']) : "<i>Chưa có mô tả</i>") . "</p>
         <p><b>Ngày tạo:</b> {$row['created_at']}</p>
         <p><b>Trạng thái:</b> " .
             ($row['status'] == 1

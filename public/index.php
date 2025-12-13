@@ -122,7 +122,7 @@ $countFile = 0;
 
                                     </li>
                                     <li>
-                                        <a class="dropdown-item flex items-center gap-2" href="#">
+                                        <a class="dropdown-item flex items-center gap-2" href="edit_folder.php?folder_id=<?= $row['folder_id'] ?>">
                                             <i class="bi bi-pencil-square"></i> Chỉnh sửa
                                         </a>
                                     </li>
