@@ -25,8 +25,7 @@ function actionLabel($action)
             return "<span class='badge bg-success text-white px-3 py-2 rounded-pill'>Đăng nhập</span>";
         case strpos($action, 'logout') !== false:
             return "<span class='badge bg-dark text-white px-3 py-2 rounded-pill'>Đăng xuất</span>";
-        case strpos($action, 'tạo dự án') !== false:
-        case strpos($action, 'tạo folder') !== false:
+        case strpos($action, 'create') !== false:
             return "<span class='badge bg-primary text-white px-3 py-2 rounded-pill'>Tạo dự án</span>";
         case strpos($action, 'share') !== false:
             return "<span class='badge bg-info text-white px-3 py-2 rounded-pill'>Mời thành viên</span>";

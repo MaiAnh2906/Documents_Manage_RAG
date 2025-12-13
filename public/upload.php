@@ -3,6 +3,8 @@
 use function PHPSTORM_META\type;
 
 include("../config/config.php");
+include("func/function.php");
+
 session_start();
 if(!isset($_SESSION['login'])){
     header("Location: login.php");
@@ -24,6 +26,7 @@ if(isset($_POST['btn_upload'])){
         $size = $_FILES['fileInput']['size'];
         $user_id = $_SESSION['login']['user_id'];
 
+<<<<<<< HEAD
         $allowed_extensions = [
             'pdf','doc','docx',
             'xls','xlsx',
@@ -37,6 +40,15 @@ if(isset($_POST['btn_upload'])){
             $errorFile = "Định dạng file không được phép!";
         }elseif($size >= 10 * 1024 * 1024){
             $errorFile = "File quá lớn, dung lượng tối đa là 10MB!";
+=======
+        move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
+        $sql =  "INSERT INTO files (`user_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, '$filename', '$path', '$type', $size)";
+        if(mysqli_query($conn, $sql)){
+            // lưu activity
+            $file_id = mysqli_insert_id($conn);
+            logActivity($conn, $user_id, "upload", null, $file_id, null, null, "Tải lên tệp $filename");
+            header('Location: index.php');
+>>>>>>> a1e387e40e1ff640a4d76566f72ee36c3f5df11f
         }
 
         if($errorFile == ""){
@@ -51,6 +63,7 @@ if(isset($_POST['btn_upload'])){
 }
 
 define('ALLOW_ACCESS', true);
+<<<<<<< HEAD
 $pageTitle = "Upload file";
 include "navbar.php";
 ?>
@@ -69,3 +82,17 @@ include "navbar.php";
             <input class="btn btn-primary" type="submit" name="btn_upload" value="Upload">
         </form>
     </div>
+=======
+$pageTitle = "Trang chủ";
+include "navbar.php";
+?>
+<div class="main-container">
+    <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">UPLOAD FILES</h2>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="fileInput" id="fileInput">
+        
+        <br><br>
+        <input class="btn btn-primary" type="submit" name="btn_upload" value="Upload">
+    </form>
+</div>
+>>>>>>> a1e387e40e1ff640a4d76566f72ee36c3f5df11f
