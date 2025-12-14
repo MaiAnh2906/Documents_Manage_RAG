@@ -9,11 +9,11 @@ if (!isset($_SESSION['login'])) {
 $id = $_GET['id'];
 // folders.path AS folder_path
 $sql = "SELECT recycle_bin.*, 
-        files.path AS file_path
+        files.path AS file_path, files.name AS file_name, folders.name AS folder_name
         from recycle_bin
         LEFT JOIN files ON recycle_bin.file_id = files.file_id
         LEFT JOIN folders ON recycle_bin.folder_id = folders.folder_id
-        WHERE id = $id";
+        WHERE recycle_bin.id = $id";
 $kq = mysqli_query($conn, $sql);
 $row = mysqli_fetch_assoc($kq);
 $isFile = !empty($row['file_id']);
@@ -31,16 +31,18 @@ if($isFile){
     WHERE files.file_id = $file_id";
     mysqli_query($conn, $sql);
     // lưu activity
-    logActivity($conn, $row['user_id'], "delete", null, $file_id, null, null, "Xóa vĩnh viễn tệp " . $row['name']);
+    logActivity($conn, $row['user_id'], "delete", null, $file_id, null, null, "Xóa vĩnh viễn tệp " . $row['filename']);
 }
 if($isFolder){
     $folder_id = $row['folder_id'];
 
-    $sql = "SELECT file_path FROM contents WHERE folder_id = $folder_id";
-    $result = mysqli_query($conn, $sql);
+    $sql_file = "SELECT path FROM files
+            LEFT JOIN contents ON files.content_id = files.content_id
+            WHERE files.folder_id = $folder_id";
+    $result_file = mysqli_query($conn, $sql_file);
 
-    while ($row = mysqli_fetch_assoc($result)) {
-        $filePath = $row['file_path'];
+    while ($row_file = mysqli_fetch_assoc($result_file)) {
+        $filePath = $row_file['path'];
 
         if (file_exists($filePath)) {
             unlink($filePath);
@@ -53,7 +55,7 @@ if($isFolder){
     WHERE folders.folder_id = $folder_id";
     mysqli_query($conn, $sql);
     // lưu activity
-    logActivity($conn, $row['user_id'], "delete", $folder_id, null, null, null, "Xóa vĩnh viễn dự án " . $row['name']);
+    logActivity($conn, $row['user_id'], "delete", $folder_id, null, null, null, "Xóa vĩnh viễn dự án " . $row['folder_name']);
 }
 
 $sql = "DELETE FROM recycle_bin WHERE id = $id";
