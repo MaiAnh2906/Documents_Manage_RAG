@@ -68,6 +68,7 @@ if($isOwner){
 }else{
     $status = "pending";
 }
+$errorFile = "";
 if(isset($_POST['btn_luu'])){
     $title = $_POST['tieu_de'];
     $content_text = $_POST['noi_dung'];
@@ -75,7 +76,7 @@ if(isset($_POST['btn_luu'])){
     $sql = "UPDATE contents SET folder_id = $folder_id, user_id = $user_id, title = '$title',
                 content_text = '$content_text', status = '$status', updated_at = NOW() WHERE content_id = $content_id";
     mysqli_query($conn, $sql);
-    if($_FILES['file_upload']['error'] == 4){
+    if(!isset($_FILES['file_upload'])){
         header("Location: folder.php?folder_id=$folder_id");
     }elseif(isset($_FILES['file_upload']) && $_FILES['file_upload']['error'] == 0){
 
@@ -84,7 +85,7 @@ if(isset($_POST['btn_luu'])){
         $kq = mysqli_query($conn, $sql);
         $row_file = mysqli_fetch_assoc($kq);
 
-        if(file_exists($row_file['path'])){
+        if ($row_file && file_exists($row_file['path'])) {
             unlink($row_file['path']);
         }
 
@@ -103,11 +104,29 @@ if(isset($_POST['btn_luu'])){
         $path = $target . $newname;
         $size = $_FILES['file_upload']['size'];
 
-        move_uploaded_file($_FILES['file_upload']['tmp_name'], $path);
+        
+        $allowed_extensions = [
+            'pdf','doc','docx',
+            'xls','xlsx',
+            'ppt','pptx',
+            'txt',
+            'jpg','jpeg','png','gif','webp',
+            'zip','rar'
+        ];
 
-        $sql =  "INSERT INTO files (`user_id`, `folder_id`, `content_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, $folder_id, $content_id, '$filename', '$path', '$type', $size)";
-        mysqli_query($conn, $sql);
-        header("Location: folder.php?folder_id=$folder_id");
+        if (!in_array($type, $allowed_extensions)) {
+            $errorFile = "Định dạng file không được phép!";
+        }elseif($size >= 10 * 1024 * 1024){
+            $errorFile = "File quá lớn, dung lượng tối đa là 10MB!";
+        }
+
+        if($errorFile == ""){
+            move_uploaded_file($_FILES['file_upload']['tmp_name'], $path);
+
+            $sql =  "INSERT INTO files (`user_id`, `folder_id`, `content_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, $folder_id, $content_id, '$filename', '$path', '$type', $size)";
+            mysqli_query($conn, $sql);
+            header("Location: folder.php?folder_id=$folder_id");
+        }
     }
 }
 
@@ -211,6 +230,11 @@ if(isset($_POST['btn_luu'])){
         Chỉnh sửa nội dung
     </h2>
 
+    <?php if (!empty($errorFile)) { ?>
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-3">
+            <?php echo $errorFile; ?>
+        </div>
+    <?php } ?>
     <form action="" method="POST" enctype="multipart/form-data" class="space-y-5">
 
         <!-- Tiêu đề -->
