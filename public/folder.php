@@ -50,6 +50,12 @@ $permission = $row['permission'] ?? null;
 
 $canAdd = ($isOwner || ($permission == 'contributor') || ($permission == 'operator')) && ($folder['status'] == 1);
 
+$canEdit = ($isOwner || ($permission == 'operator')) && ($folder['status'] == 1);
+
+$canCmt = ($isOwner || ($permission == 'contributor') || ($permission == 'operator')) && ($folder['status'] == 1);
+
+$qlytv = ($isOwner || ($permission == 'operator'));
+
 
 if(isset($_GET['delete_content_id'])){
     $delete_ct = $_GET['delete_content_id'];
@@ -220,7 +226,7 @@ if(isset($_GET['comment_id'])){
         ?>       
     </ul>
 
-    <?php if ($isOwner) { ?>
+    <?php if ($qlytv) { ?>
     <a href="member_management.php?folder_id=<?= $folder_id ?>" class="underline text-sm">Quản lý thành viên</a>
     <?php } ?>
     <a class="dropdown-item" href="#" onclick="openFolderDetail(<?= $folder_id ?>)">
@@ -296,9 +302,11 @@ if(isset($_GET['comment_id'])){
                             </a>
                         <?php } ?>
 
+                        <?php if($canEdit) { ?>
                         <a href="edit_content.php?folder_id=<?php echo $folder_id; ?>&content_id=<?php echo $row['content_id']; ?>" class="text-blue-600">Sửa</a>
 
                         <a href="?folder_id=<?php echo $folder_id; ?>&delete_content_id=<?php echo $row['content_id']; ?>" class="text-red-600" onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</a>
+                        <?php } ?>
                         
                     </div>
                 </div>

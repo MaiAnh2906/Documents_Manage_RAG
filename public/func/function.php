@@ -6,6 +6,7 @@ function logActivity($conn, $user_id, $action, $folder_id = null, $file_id = nul
     $file_id = $file_id ? intval($file_id) : "NULL";
     $content_id = $content_id ? intval($content_id) : "NULL";
     $comment_id = $comment_id ? intval($comment_id) : "NULL";
+    
     $action = mysqli_real_escape_string($conn, $action);
     $description = $description ? "'" . mysqli_real_escape_string($conn, $description) . "'" : "NULL";
 
@@ -14,7 +15,6 @@ function logActivity($conn, $user_id, $action, $folder_id = null, $file_id = nul
 
     mysqli_query($conn, $sql);
 }
-// Hàm để render label màu theo hành động
 function actionLabel($action)
 {
     $action = strtolower($action);
