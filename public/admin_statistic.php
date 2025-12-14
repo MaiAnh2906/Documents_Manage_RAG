@@ -10,13 +10,10 @@ $user_id = $_SESSION['login']['user_id'];
 $username = $_SESSION['login']['username'];
 $role = $_SESSION['login']['role'];
 
-// Chỉ admin mới xem được
 if ($role != 1) {
     header("Location: assets/images/403.php");
     exit();
 }
-
-// Lấy dữ liệu thống kê dự án theo user
 $sqlStats = "SELECT 
     u.user_id,
     u.username,
