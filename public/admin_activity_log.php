@@ -35,14 +35,13 @@ include "navbar.php";
 <!-- MAIN CONTENT -->
 <div class="main-container container-fluid px-4 py-4 bg-slate-100 min-vh-100">
 
-    <!-- HEADER -->
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h3 class="fw-semibold text-slate-800 mb-0 d-flex align-items-center gap-2">
             <i class="bi bi-clock-history text-primary fs-4"></i>
             Lịch sử hoạt động
         </h3>
         <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
-            50 bản ghi gần nhất
+            7 ngày gần nhất
         </span>
     </div>
 
