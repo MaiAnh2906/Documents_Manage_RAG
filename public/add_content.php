@@ -4,6 +4,7 @@ use Pdo\Mysql;
 
 include("../config/config.php");
 include("auto_clean.php");
+include("func/function.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -99,8 +100,18 @@ if(isset($_POST['btn_luu'])){
             $error = "File quá lớn, dung lượng tối đa là 10MB!";
         }
 
-        if($error == ""){
+        // limit
+        $limit = 10 * 1024 * 1024;
+        $sql = "SELECT SUM(size) AS total_size FROM files WHERE user_id = $user_id";
+        $result = mysqli_query($conn, $sql);
+        $row = mysqli_fetch_assoc($result);
+        $totalSize = $row['total_size'] ?? 0;
+        if ($totalSize >= $limit) {
+            echo "<script>alert('Bạn đã vượt quá giới hạn dung lượng lưu trữ! Vui lòng xóa bớt tệp tin hoặc nâng cấp tài khoản.'); window.location.href = 'storage.php';</script>";
+            exit();
+        }
 
+        if($error == ""){
             move_uploaded_file($_FILES['file_upload']['tmp_name'], $path);
             $sql = "INSERT INTO contents (folder_id, user_id, title, content_text, status, created_at) VALUES 
             ($folder_id, $user_id, '$title', '$content_text', '$status', NOW())";
@@ -109,6 +120,8 @@ if(isset($_POST['btn_luu'])){
             $content_id = mysqli_insert_id($conn);
             $sql =  "INSERT INTO files (`user_id`, `folder_id`, `content_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, $folder_id, $content_id, '$filename', '$path', '$type', $size)";
             mysqli_query($conn, $sql);
+            // lưu activity
+            logActivity($conn, $user_id, "add_content", $folder_id, null, $content_id, null, "Thêm nội dung mới: $title");
 
 
             header("Location: folder.php?folder_id=$folder_id");

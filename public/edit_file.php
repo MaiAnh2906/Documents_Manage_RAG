@@ -78,6 +78,8 @@ if(isset($_POST['btn_update'])){
             $sql = "UPDATE files SET `user_id`=$user_id, `name`='$filename', `path`='$path', `type`='$type', `size`=$size, `upload_date`=NOW() WHERE file_id = $id";
             $kq = mysqli_query($conn, $sql);
             header("Location: index.php");
+            // lưu activity
+            logActivity($conn, $user_id, "edit", null, $id, null, null, "Cập nhật file $file_name thành $filename");
         }
     }
 }

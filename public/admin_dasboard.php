@@ -29,6 +29,19 @@ if ($kq) {
     echo "Lỗi truy vấn: " . mysqli_error($conn);
 }
 
+// sl user hoạt động hôm nay
+$sqlActive = "SELECT COUNT(DISTINCT user_id) AS active_users_today
+              FROM activity_logs
+              WHERE action IN ('login')
+              AND DATE(created_at) = CURDATE()";
+$resultActive = mysqli_query($conn, $sqlActive);
+$activeToday = 0;
+if ($resultActive) {
+    $rowActive = mysqli_fetch_assoc($resultActive);
+    $activeToday = $rowActive['active_users_today'];
+}
+
+
 define('ALLOW_ACCESS', true);
 $pageTitle = "Trang chủ";
 include "navbar.php";
@@ -36,53 +49,53 @@ include "detail_folder.php";
 ?>
 <!-- MAIN CONTENT -->
 <div class="main-container">
-    <h2 class="text-xl font-bold text-gray-700 uppercase mt-10 mb-4 tracking-wider border-b pb-2">QUẢN TRỊ HỆ THỐNG</h2>
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl p-8 shadow-lg mb-10">
+        <h2 class="text-2xl font-bold mb-2">
+            👋 Xin chào, <?php echo $username; ?>
+        </h2>
+        <p class="text-sm opacity-90 mb-6">
+            Tổng quan nhanh hệ thống quản lý file hôm nay
+        </p>
 
-    <div class="grid grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-lg p-6 shadow-md">
-            <div class="text-sm text-gray-500">TỔNG NGƯỜI DÙNG</div>
-            <div class="text-3xl font-bold text-blue-700">
-                <?php echo $totalUsers; ?>
+        <div class="grid grid-cols-3 gap-6">
+            <div>
+                <div class="text-3xl font-bold"><?php echo $totalUsers ?></div>
+                <div class="text-sm opacity-80">Người dùng</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold"><?php echo $totalProjects ?></div>
+                <div class="text-sm opacity-80">Dự án</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold"><?php echo $activeToday ?></div>
+                <div class="text-sm opacity-80">Hoạt động hôm nay</div>
             </div>
         </div>
-        <div class="bg-white rounded-lg p-6 shadow-md">
-            <div class="text-sm text-gray-500">TỔNG DỰ ÁN</div>
-            <div class="text-3xl font-bold text-blue-700">
-                <?php echo $totalProjects; ?>
-            </div>
-        </div>
-
     </div>
 
-    <div class="grid grid-cols-4 gap-6">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">
+        Truy cập nhanh
+    </h3>
 
-        <!-- Quản lý tài khoản -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="font-semibold mb-2">Quản lý tài khoản</h3>
-            <p class="text-sm text-gray-600 mb-4">Xem, thêm, sửa, xóa tài khoản người dùng trong hệ thống</p>
-            <a href="user_manage.php" class="btn btn-primary" style="background-color: #2563eb; border: none;">Quản lý người dùng</a>
-        </div>
+    <div class="grid grid-cols-3 gap-6 mb-10">
 
-        <!-- Quản lý phân quyền -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="font-semibold mb-2">Quản lý phân quyền</h3>
-            <p class="text-sm text-gray-600 mb-4">Phân quyền hệ thống cho người dùng (Admin/User)</p>
-            <a href="role_manage.php" class="btn btn-success" style="background-color: #22c55e; border: none;">Phân quyền</a>
-        </div>
+        <a href="user_manage.php" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition group">
+            <div class="text-4xl mb-3 group-hover:scale-110 transition">👤</div>
+            <h4 class="font-semibold text-lg">Người dùng</h4>
+            <p class="text-sm text-gray-500">Quản lý tài khoản</p>
+        </a>
 
-        <!-- Lịch sử hoạt động -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="font-semibold mb-2">Lịch sử hoạt động</h3>
-            <p class="text-sm text-gray-600 mb-4">Tra cứu lịch sử đăng nhập và hoạt động của người dùng</p>
-            <a href="admin_activity_log.php" class="btn btn-warning" style="background-color: #fbbf24; border: none;">Xem lịch sử</a>
-        </div>
+        <a href="admin_statistic.php" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition group">
+            <div class="text-4xl mb-3 group-hover:scale-110 transition">📁</div>
+            <h4 class="font-semibold text-lg">Thống kê</h4>
+            <p class="text-sm text-gray-500">Thống kê theo người dùng</p>
+        </a>
 
-        <!-- Bảo trì hệ thống -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="font-semibold mb-2">Bảo trì hệ thống</h3>
-            <p class="text-sm text-gray-600 mb-4">Sao lưu dữ liệu, khôi phục database, bảo trì hệ thống</p>
-            <a href="maintenance.php" class="btn btn-danger" style="background-color: #ef4444; border: none;">Bảo trì</a>
-        </div>
+        <a href="admin_activity_log.php" class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition group">
+            <div class="text-4xl mb-3 group-hover:scale-110 transition">🕒</div>
+            <h4 class="font-semibold text-lg">Hoạt động</h4>
+            <p class="text-sm text-gray-500">Lịch sử hệ thống</p>
+        </a>
 
     </div>
 

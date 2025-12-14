@@ -15,7 +15,7 @@ if (isset($_POST['btn_login'])) {
 
     if ($email == "" || $password == "") {
         if (empty($_POST['email'])) {
-            $errorEmail = "Vui lòng nhập địa chỉ email!";
+            $errorEmail = "*Vui lòng nhập địa chỉ email!";
         } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
             $errorEmail = "*Vui lòng nhập đúng định dạng email!";
         }

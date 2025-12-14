@@ -12,11 +12,11 @@ include "navbar.php";
 
 $user_id = $_SESSION['login']['user_id'];
 $username = $_SESSION['login']['username'];
-$role = $_SESSION['login']['role']; 
+$role = $_SESSION['login']['role'];
 
-$maxStorage = ($role === 1)
-    ? 200 * 1024 * 1024 * 1024
-    : 2 * 1024 * 1024 * 1024;
+$maxStorage = ($role == 1)
+    ? 50000 * 1024 * 1024
+    : 10 * 1024 * 1024;
 
 
 $files = [];
@@ -60,14 +60,11 @@ foreach ($files as $f) {
 
     if (in_array($ext, $extDocument)) {
         $categories['document'] += $f['size'];
-    } 
-    else if (in_array($ext, $extImage)) {
+    } else if (in_array($ext, $extImage)) {
         $categories['image'] += $f['size'];
-    } 
-    else if (in_array($ext, $extVideo)) {  
-    $categories['video'] += $f['size'];
-    }
-    else {
+    } else if (in_array($ext, $extVideo)) {
+        $categories['video'] += $f['size'];
+    } else {
         $categories['other'] += $f['size'];
     }
 }
@@ -83,18 +80,20 @@ foreach ($files as $f) {
 // });
 // $largestFiles = array_slice($files, 0, 5);
 
-$thresholdMB = 10; // ngưỡng 10 MB
-$thresholdBytes = $thresholdMB * 1024 * 1024; // chuyển sang bytes
+$thresholdMB = 10;
+$thresholdBytes = $thresholdMB * 1024 * 1024;
 
-$largestFiles = array_filter($files, function($file) use ($thresholdBytes) {
-    return $file['size'] > $thresholdBytes; 
+$largestFiles = array_filter($files, function ($file) use ($thresholdBytes) {
+    return $file['size'] > $thresholdBytes;
 });
 
 
-function toMB($bytes) {
+function toMB($bytes)
+{
     return round($bytes / (1024 * 1024), 2);
 }
-function toGB($bytes) {
+function toGB($bytes)
+{
     return round($bytes / (1024 * 1024 * 1024), 2);
 }
 ?>
@@ -102,79 +101,77 @@ function toGB($bytes) {
 
 <!-- MAIN CONTENT -->
 <div class="main-container">
-<section class="bg-white p-6 rounded-xl shadow-md mt-8">
-    <h2 class="text-xl font-bold text-gray-700 uppercase mb-4 tracking-wider border-b pb-2">
-        QUẢN LÝ BỘ NHỚ
-    </h2>
+    <section class="bg-white p-6 rounded-xl shadow-md mt-8">
+        <h2 class="text-xl font-bold text-gray-700 uppercase mb-4 tracking-wider border-b pb-2">
+            QUẢN LÝ BỘ NHỚ
+        </h2>
 
-    <!-- Tổng dluong -->
-    <div class="flex flex-col md:flex-row items-center md:justify-between gap-6 my-6">
-        <!-- Dung lương, thanh tiến trình -->
-        <div>
-            <p class="text-gray-600 text-sm">Tổng dung lượng đã sử dụng</p>
-            <h3 class="text-3xl font-bold text-gray-900">
-                <?= toMB($totalUsed) ?> MB / <?= toMB($maxStorage) ?> MB
-            </h3>
+        <!-- Tổng dluong -->
+        <div class="flex flex-col md:flex-row items-center md:justify-between gap-6 my-6">
+            <div>
+                <p class="text-gray-600 text-sm">Tổng dung lượng đã sử dụng</p>
+                <h3 class="text-3xl font-bold text-gray-900">
+                    <?= toMB($totalUsed) ?> MB / <?= toMB($maxStorage) ?> MB
+                </h3>
 
-            <div class="w-64 h-3 bg-gray-200 rounded-full mt-3 overflow-hidden">
-                <div class="h-full bg-blue-500" style="width: <?= round($percent, 2) ?>%;"></div>
+                <div class="w-64 h-3 bg-gray-200 rounded-full mt-3 overflow-hidden">
+                    <div class="h-full bg-blue-500" style="width: <?= round($percent, 2) ?>%;"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <canvas id="fileChart" width="160" height="160"></canvas>
+                <p class="text-xs text-gray-500 mt-2">Phân loại theo định dạng file</p>
             </div>
         </div>
 
-        <!-- Biểu đồ tròn -->
-        <div class="flex flex-col items-center">
-            <canvas id="fileChart" width="160" height="160"></canvas>
-            <p class="text-xs text-gray-500 mt-2">Phân loại theo định dạng file</p>
-        </div>
-    </div>
-
-    <!-- Thống kê theo category -->
-    <div class="flex gap-4 overflow-x-auto mt-6 p-2">
-        <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
-            <p class="font-semibold text-gray-700">Tài liệu</p>
-            <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['document']) ?> MB</p>
-        </div>
-
-        <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
-            <p class="font-semibold text-gray-700">Hình ảnh</p>
-            <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['image']) ?> MB</p>
-        </div>
-
-        <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
-            <p class="font-semibold text-gray-700">Video</p>
-            <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['video']) ?> MB</p>
-        </div>
-
-        <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
-            <p class="font-semibold text-gray-700">Thùng rác</p>
-            <p class="text-gray-500 text-sm mt-1"><?= toMB($trashSize) ?> MB</p>
+        <div class="flex gap-4 overflow-x-auto mt-6 p-2">
+            <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
+                <p class="font-semibold text-gray-700">Tài liệu</p>
+                <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['document']) ?> MB</p>
+            </div>
+            <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
+                <p class="font-semibold text-gray-700">Hình ảnh</p>
+                <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['image']) ?> MB</p>
+            </div>
+            <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
+                <p class="font-semibold text-gray-700">Video</p>
+                <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['video']) ?> MB</p>
+            </div>
+            <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
+                <p class="font-semibold text-gray-700">Thùng rác</p>
+                <p class="text-gray-500 text-sm mt-1"><?= toMB($trashSize) ?> MB</p>
+            </div>
+            <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
+                <p class="font-semibold text-gray-700">Khác</p>
+                <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['other']) ?> MB</p>
+            </div>
         </div>
 
-        <div class="min-w-[180px] p-4 border rounded-lg bg-gray-50">
-            <p class="font-semibold text-gray-700">Khác</p>
-            <p class="text-gray-500 text-sm mt-1"><?= toMB($categories['other']) ?> MB</p>
-        </div>
-    </div>
+        <div class="mt-10">
+            <h3 class="text-lg font-bold text-gray-700 mb-3">Tệp dung lượng lớn</h3>
+            <div class="space-y-3">
+                <?php
+                if (!empty($largestFiles)) {
+                    foreach ($largestFiles as $f) {
+                        $fileName = $f['name'];
+                        $fileSize = toMB($f['size']); ?>
+                        <div class="flex justify-between p-3 border rounded-lg bg-gray-50">
+                            <span class="text-gray-700">
+                                <?php echo $fileName; ?>
+                            </span>
+                            <span class="text-gray-500">
+                                <?php echo $fileSize; ?> MB
+                            </span>
+                        </div>
+                    <?php }
+                } else { ?>
+                    <p class="text-gray-500">Không có tệp nào.</p>
+                <?php } ?>
+            </div>
 
-    <!-- Tệp dung lượng lớn -->
-    <div class="mt-10">
-        <h3 class="text-lg font-bold text-gray-700 mb-3">Tệp dung lượng lớn</h3>
 
-        <div class="space-y-3">
-            <?php if (count($largestFiles) > 0): ?>
-                <?php foreach ($largestFiles as $f): ?>
-                    <div class="flex justify-between p-3 border rounded-lg bg-gray-50">
-                        <span class="text-gray-700"><?= htmlspecialchars($f['name']) ?></span>
-                        <span class="text-gray-500"><?= toMB($f['size']) ?> MB</span>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p class="text-gray-500">Không có tệp nào.</p>
-            <?php endif; ?>
-        </div>
-    </div>
-
-</section>
+    </section>
 
 </div>
 
@@ -182,29 +179,33 @@ function toGB($bytes) {
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const dataDocument = <?= $categories['document'] ?>;
-const dataImage = <?= $categories['image'] ?>;
-const dataVideo = <?= $categories['video'] ?>;
-const dataOther = <?= $categories['other'] ?>;
+    const dataDocument = <?= $categories['document'] ?>;
+    const dataImage = <?= $categories['image'] ?>;
+    const dataVideo = <?= $categories['video'] ?>;
+    const dataOther = <?= $categories['other'] ?>;
 
-const ctx = document.getElementById('fileChart').getContext('2d');
+    const ctx = document.getElementById('fileChart').getContext('2d');
 
-new Chart(ctx, {
-    type: 'pie',
-    data: {
-        labels: ['Tài liệu', 'Hình ảnh', 'Video', 'Khác'],
-        datasets: [{
-            data: [dataDocument, dataImage, dataVideo, dataOther],
-            backgroundColor: [
-                '#3b82f6', 
-                '#10b981', 
-                '#ef4444', 
-                '#f59e0b' 
-            ]
-        }]
-    },
-    options: {
-        plugins: { legend: { display: false } }
-    }
-});
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Tài liệu', 'Hình ảnh', 'Video', 'Khác'],
+            datasets: [{
+                data: [dataDocument, dataImage, dataVideo, dataOther],
+                backgroundColor: [
+                    '#3b82f6',
+                    '#10b981',
+                    '#ef4444',
+                    '#f59e0b'
+                ]
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
 </script>
