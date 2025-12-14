@@ -1,6 +1,7 @@
 <?php
 include("../config/config.php");
 include("auto_clean.php");
+include("func/function.php");
 session_start();
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -98,6 +99,18 @@ if (isset($_POST['btnShare'])) {
                                 VALUES ($target_id, $user_id, $share_to, '$permission')";
                     }
                     $conn->query($sql);
+                    // lưu activity
+                        logActivity(
+                            $conn,
+                            $user_id,
+                            "share",
+                            $target_id,
+                            null,
+                            null,
+                            null,
+                            "Chia sẻ dự án cho $email với quyền $permission"
+                        );
+        
                     $success = "Chia sẻ thành công!";
                 }
             }
@@ -110,6 +123,17 @@ if (isset($_POST['btnUpdate'])) {
     $share_id = $_POST['share_id'];
 
     $conn->query("UPDATE shares SET permission='$permission' WHERE share_id=$share_id");
+    // lưu activity
+    logActivity(
+        $conn,
+        $user_id,
+        "share",
+        $target_id,
+        null,
+        null,
+        null,
+        "Cập nhật quyền chia sẻ dự án của $edit_email thành $permission"
+    );
     $success = "Cập nhật quyền thành công!";
     $edit_share_id = "";
     $edit_email = "";

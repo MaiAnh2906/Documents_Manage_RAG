@@ -104,7 +104,7 @@ if (isset($_POST['btnShare'])) {
                         logActivity(
                             $conn,
                             $user_id,
-                            "share_file",
+                            "share",
                             null,
                             $target_id,
                             null,
@@ -115,12 +115,12 @@ if (isset($_POST['btnShare'])) {
                         logActivity(
                             $conn,
                             $user_id,
-                            "share_folder",
+                            "share",
                             $target_id,
                             null,
                             null,
                             null,
-                            "Chia sẻ folder cho $email với quyền $permission"
+                            "Chia sẻ dự án cho $email với quyền $permission"
                         );
                     }
                     $success = "Chia sẻ thành công!";
@@ -147,7 +147,7 @@ if (isset($_POST['btnUpdate'])) {
         logActivity(
             $conn,
             $user_id,
-            "update_share_permission",
+            "share",
             null,
             $info['file_id'],
             null,
@@ -158,12 +158,12 @@ if (isset($_POST['btnUpdate'])) {
         logActivity(
             $conn,
             $user_id,
-            "update_share_permission",
+            "share",
             $info['folder_id'],
             null,
             null,
             null,
-            "Cập nhật quyền chia sẻ folder của $edit_email thành $permission"
+            "Cập nhật quyền chia sẻ dự án của $edit_email thành $permission"
         );
     }
     $success = "Cập nhật quyền thành công!";
