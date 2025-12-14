@@ -39,11 +39,13 @@ if($isFile){
 if($isFolder){
     $folder_id = $row['folder_id'];
 
-    $sql = "SELECT file_path FROM contents WHERE folder_id = $folder_id";
-    $result = mysqli_query($conn, $sql);
+    $sql_file = "SELECT path FROM files   
+            JOIN contents ON files.content_id = contents.content_id
+            WHERE files.folder_id = $folder_id";
+    $result_file = mysqli_query($conn, $sql);
 
-    while ($row = mysqli_fetch_assoc($result)) {
-        $filePath = $row['file_path'];
+    while ($row_file = mysqli_fetch_assoc($result_file)) {
+        $filePath = $row_file['path'];
 
         if (file_exists($filePath)) {
             unlink($filePath);
