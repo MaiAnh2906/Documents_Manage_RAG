@@ -27,7 +27,7 @@ if(isset($_POST['btn_update'])){
     $user_id = $_SESSION['login']['user_id'];
     $name = $_POST['filename'];
 
-    if (!isset($_FILES['fileInput'])) {
+    if ($_FILES['fileInput']['error'] == 4) {
         if ($name == "") {
             $error = "Vui lòng nhập tên bạn muốn đổi";
         } else {

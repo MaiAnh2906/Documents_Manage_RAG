@@ -73,10 +73,10 @@ if(isset($_POST['btn_luu'])){
     $title = $_POST['tieu_de'];
     $content_text = $_POST['noi_dung'];
 
-    $sql = "UPDATE contents SET folder_id = $folder_id, user_id = $user_id, title = '$title',
+    $sql = "UPDATE contents SET title = '$title',
                 content_text = '$content_text', status = '$status', updated_at = NOW() WHERE content_id = $content_id";
     mysqli_query($conn, $sql);
-    if(!isset($_FILES['file_upload'])){
+    if($_FILES['file_upload']['error'] == 4){
         header("Location: folder.php?folder_id=$folder_id");
     }elseif(isset($_FILES['file_upload']) && $_FILES['file_upload']['error'] == 0){
 

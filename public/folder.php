@@ -52,7 +52,7 @@ $canAdd = ($isOwner || ($permission == 'contributor') || ($permission == 'operat
 
 $canEdit = ($isOwner || ($permission == 'operator')) && ($folder['status'] == 1);
 
-$qlytv = ($isOwner || ($permission == 'operator') && ($folder['status'] == 1));
+$qlytv = ($isOwner && ($folder['status'] == 1));
 
 
 if(isset($_GET['delete_content_id'])){
@@ -269,6 +269,16 @@ if(isset($_GET['comment_id'])){
             $kq = mysqli_query($conn, $sql);
             while($row = mysqli_fetch_assoc($kq)){
                 $content_id = $row['content_id'];
+
+                $canEdit = false;
+                if($folder['status'] == 1){
+                    if ($isOwner || $permission === 'operator') {
+                        $canEdit = true;
+                    } elseif ($permission === 'contributor' && $row['user_id'] == $user_id) {
+                        $canEdit = true;
+                    }
+                }
+
                 $sql_file = "SELECT * FROM files 
                         WHERE content_id = $content_id AND folder_id = $folder_id";
                 $kq_file = mysqli_query($conn, $sql_file);
