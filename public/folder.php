@@ -52,9 +52,7 @@ $canAdd = ($isOwner || ($permission == 'contributor') || ($permission == 'operat
 
 $canEdit = ($isOwner || ($permission == 'operator')) && ($folder['status'] == 1);
 
-$canCmt = ($isOwner || ($permission == 'contributor') || ($permission == 'operator')) && ($folder['status'] == 1);
-
-$qlytv = ($isOwner || ($permission == 'operator'));
+$qlytv = ($isOwner || ($permission == 'operator') && ($folder['status'] == 1));
 
 
 if(isset($_GET['delete_content_id'])){
@@ -223,7 +221,7 @@ if(isset($_GET['comment_id'])){
         ?>       
     </ul>
 
-    <?php if ($isOwner && $folder['status'] == 1) { ?>
+    <?php if ($qlytv) { ?>
     <a href="member_management.php?folder_id=<?= $folder_id ?>" class="underline text-sm">Quản lý thành viên</a>
     <?php } ?>
     <a class="dropdown-item" href="#" onclick="openFolderDetail(<?= $folder_id ?>)">
@@ -411,7 +409,7 @@ if(isset($_GET['comment_id'])){
                                     <?php echo $row_comment['created_at']; ?>
                                 </span>
 
-                                <?php if ($row_comment['user_id'] == $user_id || $isOwner) { ?>
+                                <?php if (($row_comment['user_id'] == $user_id || $isOwner) && ($folder['status'] == 1)) { ?>
                                 <a href="?comment_id=<?php echo $row_comment['comment_id']; ?>&folder_id=<?php echo $folder_id; ?>"
                                     class="text-xs text-red-500 hover:underline"
                                     onclick="return confirm('Xóa bình luận này?')">
