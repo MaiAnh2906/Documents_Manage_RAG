@@ -22,18 +22,12 @@ $countFile = 0;
 <div class="main-container">
     <!-- FOLDERS SESION-->
     <?php
-    if ($role == 1) {
-        $sql = "SELECT folders.*, users.username FROM folders
-                                JOIN users ON folders.user_id = users.user_id
-                                WHERE folders.is_deleted = 0
-                                ORDER BY created_at DESC";
-    } else {
-        $sql = "SELECT folders.*, users.username FROM folders
-                                JOIN users ON folders.user_id = users.user_id
-                                WHERE folders.user_id = $user_id
-                                AND folders.is_deleted = 0
-                                ORDER BY created_at DESC";
-    }
+    $sql = "SELECT folders.*, users.username FROM folders
+                            JOIN users ON folders.user_id = users.user_id
+                            WHERE folders.user_id = $user_id
+                            AND folders.is_deleted = 0
+                            ORDER BY created_at DESC";
+    
     $resFolder = mysqli_query($conn, $sql);
     $countFolder = mysqli_num_rows($resFolder);
 
@@ -100,18 +94,12 @@ $countFile = 0;
 
     <!-- ALL FILES SECTION -->
     <?php
-    if ($role == 1) {
-        $sql = "SELECT * FROM files
-                                JOIN users ON files.user_id = users.user_id
-                                WHERE files.is_deleted = 0
-                                ORDER BY upload_date DESC";
-    } else {
-        $sql = "SELECT * FROM files
-                                JOIN users ON files.user_id = users.user_id
-                                WHERE files.user_id = $user_id
-                                AND files.is_deleted = 0
-                                ORDER BY upload_date DESC";
-    }
+    $sql = "SELECT * FROM files
+                            JOIN users ON files.user_id = users.user_id
+                            WHERE files.user_id = $user_id
+                            AND files.is_deleted = 0
+                            ORDER BY upload_date DESC";
+    
     $kq = mysqli_query($conn, $sql);
     $countFile = mysqli_num_rows($kq);
 

@@ -325,7 +325,7 @@ $countFile = 0;
     <?php } ?>
 
     <!-- empty -->
-    <?php if ($countFolder == 0 && $countFile == 0) { ?>
+    <?php if ($countFolder == 0 && $countFile == 0 && $countSharedFolder == 0 && $countSharedFile == 0) { ?>
         <div class="flex flex-col items-center justify-center h-[70vh] text-center">
 
             <img src="assets/images/logo_drive.png" class="w-40 h-40 object-contain mb-6 opacity-90">
