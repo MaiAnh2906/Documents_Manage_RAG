@@ -25,12 +25,22 @@ if(isset($_POST['btn_upload'])){
         $path = $target . $newname;
         $size = $_FILES['fileInput']['size'];
         $user_id = $_SESSION['login']['user_id'];
+        // limit 
+        $limit = 10 * 1024 * 1024; 
+        $sql = "SELECT SUM(size) AS total_size FROM files WHERE user_id = $user_id";
+        $result = mysqli_query($conn, $sql);
+        $row = mysqli_fetch_assoc($result);
+        $totalSize = $row['total_size'] ?? 0;
+        if ($totalSize >= $limit) {
+            echo "<script>alert('Bạn đã vượt quá giới hạn dung lượng lưu trữ! Vui lòng xóa bớt tệp tin hoặc nâng cấp tài khoản.'); window.location.href = 'storage.php';</script>";
+            exit();
+        }
 
         $allowed_extensions = [
             'pdf','doc','docx',
             'xls','xlsx',
             'ppt','pptx',
-            'txt',
+            'txt', 'mp4',
             'jpg','jpeg','png','gif','webp',
             'zip','rar'
         ];
@@ -45,6 +55,8 @@ if(isset($_POST['btn_upload'])){
             move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
             $sql =  "INSERT INTO files (`user_id`, `name`, `path`, `type`, `size`) VALUES ($user_id, '$filename', '$path', '$type', $size)";
             if(mysqli_query($conn, $sql)){
+                // lưu activity
+                logActivity($conn, $user_id, "upload", null, mysqli_insert_id($conn), null, null, "Tải lên tệp " . $filename);
                 header('Location: index.php');
             }
         }
@@ -57,17 +69,17 @@ $pageTitle = "Upload file";
 include "navbar.php";
 ?>
 
-    <div class="main-container">
-        <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">UPLOAD FILES</h2>
-        <?php if (!empty($errorFile)) { ?>
-            <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-3">
-                <?php echo $errorFile; ?>
-            </div>
-        <?php } ?>
-        <form method="post" enctype="multipart/form-data">
-            <input type="file" name="fileInput" id="fileInput">
-            
-            <br><br>
-            <input class="btn btn-primary" type="submit" name="btn_upload" value="Upload">
-        </form>
-    </div>
+<div class="main-container">
+    <h2 class="text-lg font-bold text-gray-700 uppercase mb-4 tracking-wider">UPLOAD FILES</h2>
+    <?php if (!empty($errorFile)) { ?>
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-3">
+            <?php echo $errorFile; ?>
+        </div>
+    <?php } ?>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="fileInput" id="fileInput">
+        
+        <br><br>
+        <input class="btn btn-primary" type="submit" name="btn_upload" value="Upload">
+    </form>
+</div>

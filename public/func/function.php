@@ -31,6 +31,8 @@ function actionLabel($action)
             return "<span class='badge bg-info text-white px-3 py-2 rounded-pill'>Mời thành viên</span>";
         case strpos($action, 'upload') !== false:
             return "<span class='badge bg-warning text-dark px-3 py-2 rounded-pill'>Tải lên tệp</span>";
+        case strpos($action, 'add_content') !== false:
+            return "<span class='badge bg-warning text-dark px-3 py-2 rounded-pill'>Thêm nội dung</span>";
         case strpos($action, 'delete') !== false:
             return "<span class='badge bg-danger text-white px-3 py-2 rounded-pill'>Xóa</span>";
         case strpos($action, 'edit') !== false:

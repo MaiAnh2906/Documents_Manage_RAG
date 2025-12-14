@@ -55,7 +55,7 @@ if (isset($_POST['btnShare'])) {
     $target_id = $_POST['target_id'];
 
     // tìm userid nhận
-    $sql = "SELECT user_id FROM users WHERE email = '$email'";
+    $sql = "SELECT user_id, username FROM users WHERE email = '$email'";
     $u = $conn->query($sql);
 
     if ($u->num_rows == 0) {
@@ -152,7 +152,7 @@ if (isset($_POST['btnUpdate'])) {
             $info['file_id'],
             null,
             null,
-            "Cập nhật quyền chia sẻ file thành $permission"
+            "Cập nhật quyền chia sẻ file của $edit_email thành $permission"
         );
     } else {
         logActivity(
@@ -163,7 +163,7 @@ if (isset($_POST['btnUpdate'])) {
             null,
             null,
             null,
-            "Cập nhật quyền chia sẻ folder thành $permission"
+            "Cập nhật quyền chia sẻ folder của $edit_email thành $permission"
         );
     }
     $success = "Cập nhật quyền thành công!";
@@ -335,9 +335,9 @@ if (isset($_POST['btnCancel'])) {
     <nav class="navbar navbar-expand-sm fixed-top bg-white shadow-sm">
         <div class="container-fluid justify-content-between">
             <!-- Logo -->
-            <a class="navbar-brand" href="#">
-                <img src="" alt="" width="30" height="24">
-            </a> <span>Doogle Drive</span>
+            <a class="navbar-brand" href="index.php">
+                <img src="../assets/images/logo_drive.png" alt="" width="30" height="30">
+            </a> <span><img src="../assets/images/doggle_drive.png" alt="" width="100" height="30"></span>
             <!-- Search -->
             <form method="get" action="search.php"
                 class="relative flex items-center mx-auto bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#387af5] transition-all duration-200 w-[30em]">

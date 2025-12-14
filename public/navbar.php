@@ -207,11 +207,7 @@ $role = $_SESSION['login']['role'];
             </button>
             <ul class="dropdown-menu shadow-xl" aria-labelledby="dropdownMenuButton">
                 <li><a class="dropdown-item flex items-center" href="create_folder.php"><i class="bi bi-folder me-2 text-yellow-600"></i> Thư mục mới</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
                 <li><a class="dropdown-item flex items-center" href="upload.php"><i class="bi bi-file-earmark-arrow-up me-2 text-gray-500"></i> Tải tệp lên</a></li>
-                <li><a class="dropdown-item flex items-center" href="#"><i class="bi bi-folder-fill me-2 text-gray-500"></i> Tải thư mục lên</a></li>
             </ul>
         </div>
         <br>
@@ -246,24 +242,6 @@ $role = $_SESSION['login']['role'];
                         <a href="admin_dasboard.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản trị hệ thống</a>
                     </button>
                 </li>
-                <?php } ?>
-
-                <?php if ($_SESSION['login']['role'] == 1) { ?>
-                    <li
-                        class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
-                        <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                            <a href="user_manage.php" class="nav-link"><i class="bi bi-clock-history"></i> Quản lý tài khoản</a>
-                        </button>
-                    </li>
-                <?php } ?>
-
-                <?php if ($_SESSION['login']['role'] == 1) { ?>
-                    <li
-                        class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
-                        <button class="p-16-semibold flex size-full gap-4 p-2 group font-semibold rounded-lg hover:bg-blue-100 hover:shadow-inner focus:bg-[#2c70ceff] focus:text-white text-gray-700 transition-all ease-linear">
-                            <a href="#" class="nav-link"><i class="bi bi-clock-history"></i> Thống kê</a>
-                        </button>
-                    </li>
                 <?php } ?>
 
                 <li
