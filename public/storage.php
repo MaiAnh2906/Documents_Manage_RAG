@@ -15,8 +15,8 @@ $username = $_SESSION['login']['username'];
 $role = $_SESSION['login']['role'];
 
 $maxStorage = ($role == 1)
-    ? 50000 * 1024 * 1024
-    : 10 * 1024 * 1024;
+    ? 200 * 1024 * 1024 * 1024
+    : 2 * 1024 * 1024 * 1024;
 
 
 $files = [];
@@ -111,7 +111,7 @@ function toGB($bytes)
             <div>
                 <p class="text-gray-600 text-sm">Tổng dung lượng đã sử dụng</p>
                 <h3 class="text-3xl font-bold text-gray-900">
-                    <?= toMB($totalUsed) ?> MB / <?= toMB($maxStorage) ?> MB
+                    <?= toMB($totalUsed) ?> MB / <?= toGB($maxStorage) ?> GB
                 </h3>
 
                 <div class="w-64 h-3 bg-gray-200 rounded-full mt-3 overflow-hidden">

@@ -101,7 +101,7 @@ if(isset($_POST['btn_luu'])){
         }
 
         // limit
-        $limit = 10 * 1024 * 1024;
+        $limit = 2 * 1024 * 1024 * 1024;
         $sql = "SELECT SUM(size) AS total_size FROM files WHERE user_id = $user_id";
         $result = mysqli_query($conn, $sql);
         $row = mysqli_fetch_assoc($result);
