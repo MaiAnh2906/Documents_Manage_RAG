@@ -9,7 +9,7 @@ if (!isset($_SESSION['login'])) {
 $id = $_GET['id'];
 // folders.path AS folder_path
 $sql = "SELECT recycle_bin.*, 
-        files.path AS file_path, files.name AS file_name, folders.name AS folder_name
+        files.path AS file_path
         from recycle_bin
         LEFT JOIN files ON recycle_bin.file_id = files.file_id
         LEFT JOIN folders ON recycle_bin.folder_id = folders.folder_id
@@ -26,59 +26,34 @@ if($isFile){
     if (!empty($file_path) && file_exists($file_path)) {
         unlink($file_path);
     }
-
-// lưu activity (PHẢI ĐỂ TRƯỚC DELETE)
-logActivity(
-    $conn,
-    $row['user_id'],
-    "delete_file_permanent",
-    null,
-    $file_id,
-    null,
-    null,
-    "Xóa vĩnh viễn tệp " . $row['file_name']
-);
-
-// xóa theo đúng thứ tự FK (KHÔNG JOIN)
-mysqli_query($conn, "DELETE FROM shares WHERE file_id = $file_id");
-mysqli_query($conn, "DELETE FROM files WHERE file_id = $file_id");
-
+    $sql = "DELETE files, shares FROM files 
+    LEFT JOIN shares ON files.file_id = shares.file_id
+    WHERE files.file_id = $file_id";
+    mysqli_query($conn, $sql);
+    // lưu activity
+    logActivity($conn, $row['user_id'], "delete", null, $file_id, null, null, "Xóa vĩnh viễn tệp " . $row['name']);
 }
 if($isFolder){
     $folder_id = $row['folder_id'];
 
-    $sql_file = "SELECT path FROM files   
-            JOIN contents ON files.content_id = contents.content_id
-            WHERE files.folder_id = $folder_id";
-    $result_file = mysqli_query($conn, $sql_file);
+    $sql = "SELECT file_path FROM contents WHERE folder_id = $folder_id";
+    $result = mysqli_query($conn, $sql);
 
-    while ($row_file = mysqli_fetch_assoc($result_file)) {
-        $filePath = $row_file['path'];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $filePath = $row['file_path'];
 
         if (file_exists($filePath)) {
             unlink($filePath);
         }
     }
 
-// lưu activity (PHẢI ĐỂ TRƯỚC DELETE)
-logActivity(
-    $conn,
-    $row['user_id'],
-    "delete_folder_permanent",
-    $folder_id,
-    null,
-    null,
-    null,
-    "Xóa vĩnh viễn dự án " . $row['folder_name']
-);
-
-// xóa đúng thứ tự FK (KHÔNG JOIN)
-mysqli_query($conn, "DELETE FROM shares WHERE folder_id = $folder_id");
-mysqli_query($conn, "DELETE FROM files WHERE folder_id = $folder_id");
-mysqli_query($conn, "DELETE FROM contents WHERE folder_id = $folder_id");
-mysqli_query($conn, "DELETE FROM folders WHERE folder_id = $folder_id");
-
-    
+    $sql = "DELETE folders, contents, shares FROM folders 
+    LEFT JOIN contents ON folders.folder_id = contents.folder_id
+    LEFT JOIN shares ON folders.folder_id = shares.folder_id
+    WHERE folders.folder_id = $folder_id";
+    mysqli_query($conn, $sql);
+    // lưu activity
+    logActivity($conn, $row['user_id'], "delete", $folder_id, null, null, null, "Xóa vĩnh viễn dự án " . $row['name']);
 }
 
 $sql = "DELETE FROM recycle_bin WHERE id = $id";
