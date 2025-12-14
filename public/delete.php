@@ -27,37 +27,57 @@ if($isFile){
         unlink($file_path);
     }
 
-    // lưu activity
-    logActivity($conn, $row['user_id'], "delete", null, $file_id, null, null, "Xóa vĩnh viễn tệp " . $row['file_name']);
+// lưu activity (PHẢI ĐỂ TRƯỚC DELETE)
+logActivity(
+    $conn,
+    $row['user_id'],
+    "delete_file_permanent",
+    null,
+    $file_id,
+    null,
+    null,
+    "Xóa vĩnh viễn tệp " . $row['file_name']
+);
 
-    $sql = "DELETE files, shares FROM files 
-    LEFT JOIN shares ON files.file_id = shares.file_id
-    WHERE files.file_id = $file_id";
-    mysqli_query($conn, $sql);
-    
+// xóa theo đúng thứ tự FK (KHÔNG JOIN)
+mysqli_query($conn, "DELETE FROM shares WHERE file_id = $file_id");
+mysqli_query($conn, "DELETE FROM files WHERE file_id = $file_id");
+
 }
 if($isFolder){
     $folder_id = $row['folder_id'];
 
-    $sql = "SELECT file_path FROM contents WHERE folder_id = $folder_id";
-    $result = mysqli_query($conn, $sql);
+    $sql_file = "SELECT path FROM files   
+            JOIN contents ON files.content_id = contents.content_id
+            WHERE files.folder_id = $folder_id";
+    $result_file = mysqli_query($conn, $sql_file);
 
-    while ($row = mysqli_fetch_assoc($result)) {
-        $filePath = $row['file_path'];
+    while ($row_file = mysqli_fetch_assoc($result_file)) {
+        $filePath = $row_file['path'];
 
         if (file_exists($filePath)) {
             unlink($filePath);
         }
     }
 
-    // lưu activity
-    logActivity($conn, $row['user_id'], "delete", $folder_id, null, null, null, "Xóa vĩnh viễn dự án " . $row['folder_name']);
+// lưu activity (PHẢI ĐỂ TRƯỚC DELETE)
+logActivity(
+    $conn,
+    $row['user_id'],
+    "delete_folder_permanent",
+    $folder_id,
+    null,
+    null,
+    null,
+    "Xóa vĩnh viễn dự án " . $row['folder_name']
+);
 
-    $sql = "DELETE folders, contents, shares FROM folders 
-    LEFT JOIN contents ON folders.folder_id = contents.folder_id
-    LEFT JOIN shares ON folders.folder_id = shares.folder_id
-    WHERE folders.folder_id = $folder_id";
-    mysqli_query($conn, $sql);
+// xóa đúng thứ tự FK (KHÔNG JOIN)
+mysqli_query($conn, "DELETE FROM shares WHERE folder_id = $folder_id");
+mysqli_query($conn, "DELETE FROM files WHERE folder_id = $folder_id");
+mysqli_query($conn, "DELETE FROM contents WHERE folder_id = $folder_id");
+mysqli_query($conn, "DELETE FROM folders WHERE folder_id = $folder_id");
+
     
 }
 
