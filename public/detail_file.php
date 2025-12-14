@@ -32,14 +32,35 @@ while($row = mysqli_fetch_assoc($kq)){
     $participants[] = $row;
 }
 
-define('ALLOW_ACCESS', true);
-$pageTitle = "Chi tiết file";
-include "navbar.php";
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-container">
-        <h2 class="text-xl font-bold text-gray-800 uppercase mb-6 tracking-wide">Chi tiết</h2>
+    <div class="main-container max-w-7xl mx-auto px-6 py-6">
+        <div class="flex items-center justify-between mb-6">
+            <?php if(isset($_GET['folder_id'])){  ?>
+                <a href="./folder.php?folder_id=<?php echo $_GET['folder_id']; ?>" 
+                class="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                    ← Quay lại
+                </a>
+            <?php }else{ ?>
+                <a href="./index.php" 
+                class="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                    ← Quay lại
+                </a>
+            <?php } ?>
+            
+            <h2 class="text-2xl font-bold text-gray-800 uppercase tracking-wide">
+                Chi tiết file
+            </h2>
+        </div>
 
         <div class="flex gap-8 items-start">
 
@@ -91,3 +112,5 @@ include "navbar.php";
 
 
     </div>
+</body>
+</html>

@@ -9,11 +9,12 @@ session_start();
 if(!isset($_SESSION['login'])){
     header("Location: login.php");
 }
+$user_id = $_SESSION['user_id'];
 
 $errorFile = "";
 if(isset($_POST['btn_upload'])){
     if(isset($_FILES['fileInput']) && $_FILES['fileInput']['error'] == 0){
-        $target = "uploads/";
+        $target = "uploads/". $user_id."/";
         $filename = $_FILES['fileInput']['name'];
         
         if(!file_exists($target)){

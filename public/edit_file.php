@@ -27,7 +27,7 @@ if(isset($_POST['btn_update'])){
     $user_id = $_SESSION['login']['user_id'];
     $name = $_POST['filename'];
 
-    if ($_FILES['fileInput']['error'] == 4) {
+    if (!isset($_FILES['fileInput'])) {
         if ($name == "") {
             $error = "Vui lòng nhập tên bạn muốn đổi";
         } else {
@@ -54,7 +54,9 @@ if(isset($_POST['btn_update'])){
         $kq = mysqli_query($conn, $sql);
         $row = mysqli_fetch_assoc($kq);
         $old_path = $row['path'];
-        unlink($old_path);
+        if ($row && file_exists($old_path)) {
+            unlink($old_path);
+        }
 
         $allowed_extensions = [
             'pdf','doc','docx',
@@ -75,6 +77,7 @@ if(isset($_POST['btn_update'])){
             move_uploaded_file($_FILES['fileInput']['tmp_name'], $path);
             $sql = "UPDATE files SET `user_id`=$user_id, `name`='$filename', `path`='$path', `type`='$type', `size`=$size, `upload_date`=NOW() WHERE file_id = $id";
             $kq = mysqli_query($conn, $sql);
+            header("Location: index.php");
         }
     }
 }

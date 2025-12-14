@@ -27,7 +27,7 @@ if($isFile){
         unlink($file_path);
     }
     $sql = "DELETE files, shares FROM files 
-    JOIN shares ON files.file_id = shares.file_id
+    LEFT JOIN shares ON files.file_id = shares.file_id
     WHERE files.file_id = $file_id";
     mysqli_query($conn, $sql);
     // lưu activity

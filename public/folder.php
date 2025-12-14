@@ -20,7 +20,7 @@ $user_id = $_SESSION['login']['user_id'];
 $sql = "SELECT folders.*, users.username AS owner_name, users.user_id AS owner_id
         FROM folders
         JOIN users ON folders.user_id = users.user_id
-        WHERE folder_id = $folder_id";
+        WHERE folders.folder_id = $folder_id";
 
 $res = mysqli_query($conn, $sql);
 $folder = mysqli_fetch_assoc($res);
@@ -76,9 +76,6 @@ if(isset($_GET['delete_content_id'])){
 if(isset($_POST['btn_stop'])){
 
     $sql = "UPDATE folders SET status = 0 WHERE folder_id = $folder_id";
-    mysqli_query($conn, $sql);
-
-    $sql = "UPDATE shares SET permission = 'viewer' WHERE folder_id = $folder_id";
     mysqli_query($conn, $sql);
     
     header("Location: folder.php?folder_id=$folder_id");
@@ -220,7 +217,7 @@ if(isset($_GET['comment_id'])){
         ?>       
     </ul>
 
-    <?php if ($isOwner) { ?>
+    <?php if ($isOwner && $folder['status'] == 1) { ?>
     <a href="member_management.php?folder_id=<?= $folder_id ?>" class="underline text-sm">Quản lý thành viên</a>
     <?php } ?>
     <a class="dropdown-item" href="#" onclick="openFolderDetail(<?= $folder_id ?>)">
@@ -249,10 +246,22 @@ if(isset($_GET['comment_id'])){
         <h2 class="text-lg font-bold text-gray-700 mb-4">Nội dung dự án</h2>
 
         <?php
+        if($isOwner){
             $sql = "SELECT contents.*, contents.status AS content_status, users.username  FROM contents 
-                    JOIN users ON contents.user_id = users.user_id
-                    WHERE contents.folder_id = $folder_id
-                    ORDER BY contents.content_id DESC";
+                JOIN users ON contents.user_id = users.user_id
+                WHERE contents.folder_id = $folder_id
+                ORDER BY contents.content_id DESC";
+        }else{
+            $sql = "SELECT contents.*, contents.status AS content_status, users.username  FROM contents 
+                JOIN users ON contents.user_id = users.user_id
+                WHERE contents.folder_id = $folder_id
+                AND (
+                    contents.user_id = $user_id
+                    OR contents.status = 'approved'
+                )
+                ORDER BY contents.content_id DESC";
+        }
+            
             $kq = mysqli_query($conn, $sql);
             while($row = mysqli_fetch_assoc($kq)){
                 $content_id = $row['content_id'];
@@ -284,21 +293,23 @@ if(isset($_GET['comment_id'])){
                     </div>
 
                     <div class="space-x-3">
-                        <?php if($isOwner && $row['status'] == "pending"){ ?> 
-                            <a href="?approved_id=<?php echo $row['content_id']; ?>&status=approved&folder_id=<?php echo $folder_id; ?>" 
-                            class="text-green-600 font-semibold">
-                                Duyệt
-                            </a>
+                        <?php if($folder['status'] == 1){ ?> 
+                            <?php if($isOwner && $row['status'] == "pending"){ ?> 
+                                <a href="?approved_id=<?php echo $row['content_id']; ?>&status=approved&folder_id=<?php echo $folder_id; ?>" 
+                                class="text-green-600 font-semibold">
+                                    Duyệt
+                                </a>
 
-                            <a href="?rejected_id=<?php echo $row['content_id']; ?>&status=rejected&folder_id=<?php echo $folder_id; ?>" 
-                            class="text-yellow-600 font-semibold">
-                                Từ chối
-                            </a>
+                                <a href="?rejected_id=<?php echo $row['content_id']; ?>&status=rejected&folder_id=<?php echo $folder_id; ?>" 
+                                class="text-yellow-600 font-semibold">
+                                    Từ chối
+                                </a>
+                            <?php } ?>
+
+                                <a href="edit_content.php?folder_id=<?php echo $folder_id; ?>&content_id=<?php echo $row['content_id']; ?>" class="text-blue-600">Sửa</a>
+
+                                <a href="?folder_id=<?php echo $folder_id; ?>&delete_content_id=<?php echo $row['content_id']; ?>" class="text-red-600" onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</a>
                         <?php } ?>
-
-                        <a href="edit_content.php?folder_id=<?php echo $folder_id; ?>&content_id=<?php echo $row['content_id']; ?>" class="text-blue-600">Sửa</a>
-
-                        <a href="?folder_id=<?php echo $folder_id; ?>&delete_content_id=<?php echo $row['content_id']; ?>" class="text-red-600" onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</a>
                         
                     </div>
                 </div>
@@ -326,7 +337,7 @@ if(isset($_GET['comment_id'])){
                                     data-bs-toggle="dropdown" aria-expanded="false"></i>
                                 <ul class="dropdown-menu shadow-lg rounded-xl">
                                     <li>
-                                        <a class="dropdown-item flex items-center gap-2" href="detail_file.php?id=<?php echo $row_file['file_id']; ?>">
+                                        <a class="dropdown-item flex items-center gap-2" href="detail_file.php?folder_id=<?php echo $folder_id; ?>&id=<?php echo $row_file['file_id']; ?>">
                                             <i class="bi bi-eye"></i> Chi tiết
                                         </a>
                                     </li>
@@ -346,6 +357,7 @@ if(isset($_GET['comment_id'])){
                     <h4 class="btnToggleComment font-semibold text-gray-700 mb-3 text-lg" style="cursor: pointer;">Bình luận</h4>
 
                     <div id="commentSection" class="comment-section" style="display: none;">
+                    <?php if($folder['status'] == 1){ ?> 
                     <form method="POST" class="mb-4">
                         <input type="hidden" name="content_id" value="<?php echo $row['content_id']; ?>">
                         
@@ -361,6 +373,7 @@ if(isset($_GET['comment_id'])){
                             class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm" value="Gửi bình luận"
                         > 
                     </form>
+                    <?php } ?>
 
                     <div class="space-y-4">
                     <?php 
