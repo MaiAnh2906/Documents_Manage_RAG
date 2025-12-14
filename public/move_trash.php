@@ -44,7 +44,7 @@ if($type == "file"){
     mysqli_query($conn, $sql);
 
     // lưu activity
-    logActivity($conn, $user_id, "delete", null, $id, null, null, "Chuyển tệp " . $row['name'] . " vào thùng rác");
+    logActivity($conn, $user_id, "delete_file", null, $id, null, null, "Chuyển tệp " . $row['name'] . " vào thùng rác");
 }
 
 if($type == "folder"){
@@ -64,7 +64,7 @@ if($type == "folder"){
     mysqli_query($conn, $sql);
 
     // lưu activity
-    logActivity($conn, $user_id, "delete", $id, null, null, null, "Chuyển dự án " . $row['name'] . " vào thùng rác");
+    logActivity($conn, $user_id, "delete_folder", $id, null, null, null, "Chuyển dự án " . $row['name'] . " vào thùng rác");
 }
 
 header("Location: index.php");
