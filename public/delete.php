@@ -35,7 +35,7 @@ if($isFolder){
     $folder_id = $row['folder_id'];
 
     $sql_file = "SELECT path FROM files
-            LEFT JOIN contents ON files.content_id = files.content_id
+            LEFT JOIN contents ON files.content_id = contents.content_id
             WHERE files.folder_id = $folder_id";
     $result_file = mysqli_query($conn, $sql_file);
 
@@ -47,11 +47,10 @@ if($isFolder){
         }
     }
 
-    $sql = "DELETE folders, contents, shares FROM folders 
-    LEFT JOIN contents ON folders.folder_id = contents.folder_id
-    LEFT JOIN shares ON folders.folder_id = shares.folder_id
-    WHERE folders.folder_id = $folder_id";
-    mysqli_query($conn, $sql);
+    mysqli_query($conn, "DELETE FROM shares WHERE folder_id = $folder_id");
+    mysqli_query($conn, "DELETE FROM contents WHERE folder_id = $folder_id");
+    mysqli_query($conn, "DELETE FROM files WHERE folder_id = $folder_id");
+    mysqli_query($conn, "DELETE FROM folders WHERE folder_id = $folder_id");
 }
 
 $sql = "DELETE FROM recycle_bin WHERE id = $id";
