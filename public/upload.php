@@ -1,7 +1,4 @@
 <?php
-
-use function PHPSTORM_META\type;
-
 include("../config/config.php");
 include("func/function.php");
 
@@ -38,12 +35,7 @@ if(isset($_POST['btn_upload'])){
         }
 
         $allowed_extensions = [
-            'pdf','doc','docx',
-            'xls','xlsx',
-            'ppt','pptx',
-            'txt', 'mp4',
-            'jpg','jpeg','png','gif','webp',
-            'zip','rar'
+            'pdf','docx', 'txt'
         ];
 
         if (!in_array($type, $allowed_extensions)) {
@@ -58,7 +50,35 @@ if(isset($_POST['btn_upload'])){
             if(mysqli_query($conn, $sql)){
                 // lưu activity
                 logActivity($conn, $user_id, "upload", null, mysqli_insert_id($conn), null, null, "Tải lên tệp " . $filename);
+                $document_id = mysqli_insert_id($conn);
+                // Gọi REST API
+                $data = [
+                    "document_id" => $document_id,
+                    "path" => realpath($path),
+                    "user_id" => $_SESSION['login']['user_id']
+                ];
+                $ch = curl_init("http://127.0.0.1:8000/ingest");
+
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    "Content-Type: application/json"
+                ]);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+                $response = curl_exec($ch);
+
+                if (curl_errno($ch)) {
+                    die("cURL Error: " . curl_error($ch));
+                }
+
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                curl_close($ch);
+
                 header('Location: index.php');
+                exit;
+                
             }
         }
                 

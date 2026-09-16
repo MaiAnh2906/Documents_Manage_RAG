@@ -1,7 +1,4 @@
 <?php
-
-use function PHPSTORM_META\type;
-
 include("../config/config.php");
 session_start();
 if(!isset($_SESSION['login'])){

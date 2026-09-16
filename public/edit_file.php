@@ -1,7 +1,4 @@
 <?php
-
-use function PHPSTORM_META\type;
-
 include("../config/config.php");
 include("func/function.php");
 

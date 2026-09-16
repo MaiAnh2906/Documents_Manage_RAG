@@ -1,7 +1,4 @@
 <?php
-
-use Dom\Mysql;
-
 include("../config/config.php");
 include("func/function.php");
 session_start();

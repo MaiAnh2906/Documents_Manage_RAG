@@ -1,7 +1,4 @@
 <?php
-
-use Pdo\Mysql;
-
 include("../config/config.php");
 include("auto_clean.php");
 session_start();
