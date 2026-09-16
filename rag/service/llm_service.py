@@ -3,7 +3,7 @@ from google import genai
 from pymilvus import MilvusClient
 from rag.service.config import DB_PATH, COLLECTION
 
-client = genai.Client(api_key="AIzaSyAghwDsTzq-ppzRa61x0ydYNrBW-7kX3O8")
+client = genai.Client(api_key="AIzaxxxxxxxx")
 vector_db = MilvusClient(DB_PATH)
 model = SentenceTransformer("BAAI/bge-m3", local_files_only=True)
 
